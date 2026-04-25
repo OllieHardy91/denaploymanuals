@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>See3D × Denaploy — Virtual Tours for O&M Manuals</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon-32-preview.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0A1128;
+      --navy2:  #0E1C3D;
+      --blue:   #1E40AF;
+      --mid:    #3B82F6;
+      --cyan:   #4AD8FF;
+      --pale:   #F0F7FF;
+      --border: #E2ECF8;
+      --muted:  #64748B;
+      --text:   #1A2440;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #fff;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Grain */
+    .grain { position: relative; }
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Reveal animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal.visible            { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .reveal.visible.d1         { animation-delay: 0.08s; }
+    .reveal.visible.d2         { animation-delay: 0.16s; }
+    .reveal.visible.d3         { animation-delay: 0.24s; }
+    .reveal.visible.d4         { animation-delay: 0.32s; }
+    .reveal.visible.d5         { animation-delay: 0.40s; }
+    .reveal.visible.d6         { animation-delay: 0.48s; }
+
+    /* Additional keyframes */
+    @keyframes lineGrow  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @keyframes lineGrowY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    @keyframes nodePop {
+      from { transform: scale(0.55); }
+      65%  { transform: scale(1.14); }
+      to   { transform: scale(1); }
+    }
+    @keyframes floatUp {
+      0%, 100% { transform: translateX(-50%) translateY(0px); }
+      50%       { transform: translateX(-50%) translateY(-14px); }
+    }
+    @keyframes floatUpSlow {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-8px); }
+    }
+    @keyframes labelPulse {
+      0%, 100% { opacity: 0.72; }
+      50%       { opacity: 1; }
+    }
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74,216,255,0); border-color: rgba(255,255,255,0.09); }
+      50%       { box-shadow: 0 0 0 5px rgba(74,216,255,0.1); border-color: rgba(74,216,255,0.35); }
+    }
+    @keyframes specGlow {
+      0%, 100% { box-shadow: 0 2px 12px rgba(59,130,246,0.08), 0 1px 3px rgba(10,17,40,0.05); }
+      50%       { box-shadow: 0 4px 22px rgba(59,130,246,0.22), 0 1px 6px rgba(59,130,246,0.1); }
+    }
+    @keyframes heroGradientDrift {
+      0%   { transform: scale(1)   translateX(0%)    translateY(0%); }
+      33%  { transform: scale(1.1) translateX(3%)    translateY(-4%); }
+      66%  { transform: scale(0.95) translateX(-3%)  translateY(3%); }
+      100% { transform: scale(1)   translateX(0%)    translateY(0%); }
+    }
+    @keyframes statReveal {
+      from { opacity:0; transform:translateY(12px) scale(0.94); }
+      to   { opacity:1; transform:translateY(0)    scale(1); }
+    }
+    @keyframes countUp { from { opacity:0; } to { opacity:1; } }
+
+    /* Layout */
+    section { width: 100%; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+    /* Label pill */
+    .lbl {
+      display: inline-block;
+      font-size: 0.67rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 0.9rem;
+      animation: labelPulse 4s ease-in-out infinite;
+    }
+    .lbl-light { color: var(--cyan); }
+
+    /* Section headings */
+    .sh {
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.026em;
+      line-height: 1.12;
+    }
+    .sh-dark  { color: var(--navy); }
+    .sh-light { color: #fff; }
+
+    /* ─────────────────────────────────────
+       NAV
+    ───────────────────────────────────── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(10,17,40,0.9);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-pair { display: flex; align-items: center; gap: 1.25rem; }
+    .nav-pair img { height: 25px; display: block; }
+    .nav-pair .nsep { width: 1px; height: 18px; background: rgba(255,255,255,0.16); }
+    .nav-links { display: flex; gap: 0; }
+    .nav-links a {
+      font-size: 0.76rem; font-weight: 400;
+      letter-spacing: -0.005em;
+      color: rgba(255,255,255,0.52);
+      text-decoration: none;
+      padding: 0.38rem 0.6rem;
+      border-radius: 6px;
+      transition: color 0.18s ease, background 0.18s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0.6rem; right: 0.6rem;
+      height: 1px;
+      background: var(--cyan);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.22s cubic-bezier(0.16,1,0.3,1);
+    }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    /* ─────────────────────────────────────
+       01 COVER
+    ───────────────────────────────────── */
+    #s01 {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      overflow: hidden;
+      padding: 80px 2rem 64px;
+      position: relative;
+    }
+    .cov-glow-a {
+      position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse at center, rgba(59,130,246,0.18) 0%, rgba(30,64,175,0.1) 40%, transparent 70%);
+      pointer-events: none;
+      animation: floatUp 9s ease-in-out infinite;
+    }
+    .cov-glow-b {
+      position: absolute; bottom: 0; right: -80px;
+      width: 480px; height: 400px;
+      background: radial-gradient(ellipse at bottom right, rgba(74,216,255,0.07) 0%, transparent 60%);
+      pointer-events: none;
+      animation: floatUpSlow 12s ease-in-out infinite 2.5s;
+    }
+    .cov-inner { position: relative; z-index: 3; text-align: center; max-width: 760px; }
+    .cov-logos {
+      display: flex; align-items: center; justify-content: center;
+      gap: 2rem; margin-bottom: 3.5rem;
+    }
+    .cov-logos img { height: 36px; display: block; }
+    .cov-logos .lsep { width: 1px; height: 32px; background: rgba(255,255,255,0.16); }
+    .cov-eyebrow {
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 1.25rem;
+    }
+    .cov-h1 {
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.036em;
+      line-height: 1.04;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .cov-h1 em { font-style: italic; color: var(--cyan); }
+    .cov-sub {
+      font-size: 1.05rem; font-weight: 400;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.76;
+      max-width: 580px; margin: 0 auto 2.5rem;
+    }
+    .cov-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.42rem 0.95rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 100px;
+      color: rgba(255,255,255,0.4); font-size: 0.76rem;
+      animation: badgePulse 3.5s ease-in-out infinite;
+    }
+    .cov-scroll {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      z-index: 3; display: flex; flex-direction: column;
+      align-items: center; gap: 0.32rem;
+      color: rgba(255,255,255,0.22);
+      font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    @keyframes scbounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+    .cov-scroll svg { animation: scbounce 2s ease-in-out infinite; }
+
+    /* ─────────────────────────────────────
+       02 OPPORTUNITY
+    ───────────────────────────────────── */
+    #s02 { padding: 7rem 0; background: var(--pale); }
+    .opp-wrap { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
+    .opp-h2 {
+      font-size: clamp(1.85rem, 3vw, 2.65rem);
+      font-weight: 700; letter-spacing: -0.027em;
+      line-height: 1.12; color: var(--navy); margin-bottom: 1.5rem;
+    }
+    .opp-p {
+      font-size: 1.05rem; line-height: 1.82; color: var(--muted);
+    }
+    .opp-p strong { color: var(--text); font-weight: 600; }
+    .opp-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 2rem; margin-top: 3rem;
+      padding-top: 2.5rem; border-top: 1px solid var(--border);
+    }
+    .stat-v { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--cyan); line-height: 1; margin-bottom: 0.4rem; }
+    .stat-l { font-size: 0.78rem; color: var(--muted); line-height: 1.45; }
+
+    /* ─────────────────────────────────────
+       03 DELIVERS
+    ───────────────────────────────────── */
+    #s03 { padding: 7rem 0; background: var(--navy); overflow: hidden; position: relative; }
+    .s03-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 55% at 15% 50%, rgba(30,64,175,0.22) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 55% at 85% 30%, rgba(74,216,255,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .sec-hdr { text-align: center; margin-bottom: 3.5rem; position: relative; z-index: 3; }
+    .d-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; position: relative; z-index: 3; }
+    .d-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; padding: 2rem;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .d-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(74,216,255,0.18); }
+    .d-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: rgba(74,216,255,0.08); border: 1px solid rgba(74,216,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.2rem; color: var(--cyan);
+    }
+    .d-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.015em; color: #fff; margin-bottom: 0.55rem; }
+    .d-body  { font-size: 0.85rem; line-height: 1.72; color: rgba(255,255,255,0.48); }
+
+    /* ─────────────────────────────────────
+       04 MATTERPORT
+    ───────────────────────────────────── */
+    #s04 { padding: 7rem 0; background: #fff; }
+    .sec-intro { font-size: 0.93rem; color: var(--muted); line-height: 1.72; max-width: 560px; margin-top: 0.6rem; }
+    .tco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+    .tco-card { border-radius: 20px; padding: 2.5rem; position: relative; overflow: hidden; }
+    .tco-dark  { background: linear-gradient(145deg,#0A1128,#0E1C3D); border: 1px solid rgba(74,216,255,0.13); }
+    .tco-light { background: #F8F9FC; border: 1px solid var(--border); }
+    .tco-ey {
+      font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.45rem;
+    }
+    .tco-dark  .tco-ey { color: var(--cyan); }
+    .tco-light .tco-ey { color: var(--muted); }
+    .tco-bn { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+    .tco-dark  .tco-bn { color: #fff; }
+    .tco-light .tco-bn { color: var(--text); }
+    .tco-ds { font-size: 0.81rem; margin-bottom: 2rem; }
+    .tco-dark  .tco-ds { color: rgba(255,255,255,0.44); }
+    .tco-light .tco-ds { color: var(--muted); }
+    .tco-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.68rem 0; border-bottom: 1px solid; }
+    .tco-dark  .tco-row { border-color: rgba(255,255,255,0.06); }
+    .tco-light .tco-row { border-color: var(--border); }
+    .tco-rl { font-size: 0.83rem; }
+    .tco-dark  .tco-rl { color: rgba(255,255,255,0.48); }
+    .tco-light .tco-rl { color: var(--muted); }
+    .tco-rv { font-size: 0.94rem; font-weight: 700; }
+    .tco-dark  .tco-rv { color: #fff; }
+    .tco-light .tco-rv { color: var(--text); }
+    .tco-tot { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; }
+    .tco-tl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .tco-dark  .tco-tl { color: rgba(255,255,255,0.38); }
+    .tco-light .tco-tl { color: var(--muted); }
+    .tco-tv { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.035em; }
+    .tco-dark  .tco-tv { color: var(--cyan); }
+    .tco-light .tco-tv { color: #D93025; }
+    .tco-pill {
+      display: inline-flex; align-items: center; gap: 0.38rem;
+      padding: 0.3rem 0.68rem; border-radius: 100px;
+      font-size: 0.68rem; font-weight: 600; margin-top: 1.4rem;
+    }
+    .tp-good { background: rgba(74,216,255,0.09);  color: var(--cyan); border: 1px solid rgba(74,216,255,0.2); }
+    .tp-bad  { background: rgba(217,48,37,0.08);   color: #D93025;     border: 1px solid rgba(217,48,37,0.14); }
+    .tco-fn { margin-top: 1.75rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
+
+    /* ─────────────────────────────────────
+       04b OWNERSHIP & PLATFORM
+    ───────────────────────────────────── */
+    #s04b { padding: 7rem 0; background: var(--pale); }
+    .own-grid { display:grid; grid-template-columns:1fr 1fr; gap:3.5rem; }
+    .own-col { display:flex; flex-direction:column; gap:1.25rem; }
+    .own-p { font-size:0.97rem; line-height:1.78; color:var(--muted); }
+    .own-p strong { color:var(--text); font-weight:600; }
+    .own-badges { display:flex; flex-direction:column; gap:0.7rem; margin-top:0.75rem; }
+    .own-badge { background:#fff; border:1px solid var(--border); border-radius:12px; padding:0.95rem 1.1rem; box-shadow:0 2px 8px rgba(10,17,40,0.04); }
+    .ob-v { font-size:0.92rem; font-weight:700; color:var(--navy); letter-spacing:-0.015em; margin-bottom:0.18rem; }
+    .ob-l { font-size:0.75rem; color:var(--muted); line-height:1.5; }
+
+    /* ─────────────────────────────────────
+       05 HARDWARE
+    ───────────────────────────────────── */
+    #s05 { padding: 7rem 0; background: var(--pale); }
+    .hw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: center; }
+    .hw-img {
+      border-radius: 24px; overflow: hidden; box-shadow: none;
+      background: #fff;
+      position: relative;
+    }
+    .hw-img img { width: 100%; display: block; position: relative; z-index: 1; mix-blend-mode: multiply; animation: floatUpSlow 7s ease-in-out infinite; }
+    .hw-h2 { font-size: clamp(1.65rem,2.8vw,2.25rem); font-weight:700; letter-spacing:-0.025em; color:var(--navy); margin-bottom:0.9rem; }
+    .hw-p  { font-size:0.9rem; line-height:1.78; color:var(--muted); margin-bottom:1.75rem; }
+    .hw-specs { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; margin-bottom:1.4rem; }
+    .spec-chip { background:#fff; border:1px solid rgba(59,130,246,0.2); border-radius:12px; padding:1rem 1.1rem; box-shadow:0 2px 12px rgba(59,130,246,0.08), 0 1px 3px rgba(10,17,40,0.05); transition: box-shadow 0.2s ease, transform 0.2s ease; animation: specGlow 4s ease-in-out infinite; }
+    .spec-chip:nth-child(2) { animation-delay: 1s; }
+    .spec-chip:nth-child(3) { animation-delay: 2s; }
+    .spec-chip:nth-child(4) { animation-delay: 3s; }
+    .spec-chip:hover { box-shadow:0 6px 24px rgba(59,130,246,0.22), 0 2px 6px rgba(10,17,40,0.06); transform: translateY(-2px); animation: none; }
+    .spec-v { font-size:1.18rem; font-weight:700; letter-spacing:-0.02em; color:var(--navy); line-height:1; margin-bottom:0.25rem; }
+    .spec-l { font-size:0.67rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:500; }
+    .hw-fn { font-size:0.82rem; line-height:1.65; color:var(--muted); }
+
+    /* ─────────────────────────────────────
+       06 LIVE TOUR
+    ───────────────────────────────────── */
+    #s06 { background: var(--navy); position: relative; }
+    .tour-wrap { position:relative; width:100%; height:88vh; min-height:560px; }
+    .tour-wrap iframe { width:100%; height:100%; border:none; display:block; }
+    .tour-overlay {
+      position:absolute; top:0; left:0; right:0; z-index:10;
+      padding:1.75rem 2rem;
+      background:linear-gradient(to bottom,rgba(10,17,40,0.82) 0%,transparent 100%);
+      display:flex; justify-content:space-between; align-items:flex-start;
+    }
+    .tour-lbl { font-size:0.64rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.28rem; }
+    .tour-ttl { font-size:1.05rem; font-weight:700; color:#fff; letter-spacing:-0.015em; }
+    .tour-btn {
+      display:inline-flex; align-items:center; gap:0.42rem;
+      padding:0.52rem 1.05rem;
+      background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.13);
+      border-radius:8px; color:rgba(255,255,255,0.82); font-size:0.78rem; font-weight:600;
+      text-decoration:none; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+      transition:background 0.2s ease, border-color 0.2s ease;
+    }
+    .tour-btn:hover { background:rgba(255,255,255,0.14); border-color:rgba(74,216,255,0.28); }
+
+    /* ─────────────────────────────────────
+       07 PROCESS
+    ───────────────────────────────────── */
+    #s07 { padding:7rem 0; background:var(--pale); }
+    .timeline { display:flex; align-items:flex-start; margin-top:3.5rem; position:relative; }
+    .timeline::before {
+      content:''; position:absolute;
+      top:23px; left:3%; right:3%; height:3px;
+      background: linear-gradient(to right, #4AD8FF 0%, #3B82F6 52%, #1E40AF 100%);
+      transform-origin: left center;
+      transform: scaleX(1);
+      border-radius: 3px;
+      box-shadow: 0 1px 8px rgba(74,216,255,0.25);
+    }
+    /* Line draws in on scroll; fallback keeps it visible if animation doesn't run */
+    .timeline.reveal { opacity: 1; }
+    .timeline.reveal:not(.visible)::before { transform: scaleX(0); }
+    .timeline.reveal.visible::before { animation: lineGrow 1.8s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
+    .t-step { flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; z-index:1; }
+    .t-node {
+      width:48px; height:48px; border-radius:50%;
+      background: #fff; border:2px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.68rem; font-weight:800; letter-spacing:0.03em; color:var(--blue);
+      position:relative; z-index:2; margin-bottom:1rem;
+      box-shadow:0 3px 12px rgba(10,17,40,0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34,1.5,0.64,1);
+    }
+    /* Progressive cyan→blue colouring — solid backgrounds so the line doesn't bleed through */
+    .timeline .t-step:nth-child(1) .t-node { color:#0284C7;  border-color:#4AD8FF; border-width:2.5px; background:#EEF8FF; box-shadow:0 3px 16px rgba(74,216,255,0.28); }
+    .timeline .t-step:nth-child(2) .t-node { color:#0284C7;  border-color:#38BDF8; border-width:2.5px; background:#EEF6FF; box-shadow:0 3px 16px rgba(14,165,233,0.22); }
+    .timeline .t-step:nth-child(3) .t-node { color:#1D4ED8;  border-color:#60A5FA; border-width:2.5px; background:#EEF2FF; box-shadow:0 3px 16px rgba(59,130,246,0.22); }
+    .timeline .t-step:nth-child(4) .t-node { color:#1D4ED8;  border-color:#60A5FA; border-width:2.5px; background:#EEF2FF; box-shadow:0 3px 16px rgba(59,130,246,0.22); }
+    .timeline .t-step:nth-child(5) .t-node { color:#1E40AF;  border-color:#3B82F6; border-width:2.5px; background:#EEF0FF; box-shadow:0 3px 16px rgba(37,99,235,0.22); }
+    .timeline .t-step:nth-child(6) .t-node { color:#1E3A8A;  border-color:#2563EB; border-width:2.5px; background:#EEF0FF; box-shadow:0 3px 16px rgba(30,64,175,0.22); }
+    .timeline .t-step:nth-child(7) .t-node { color:#1E3A8A;  border-color:#1E40AF; border-width:2.5px; background:#EDF0FF; box-shadow:0 3px 16px rgba(30,64,175,0.2);  }
+    /* Node pops in after its step fades up */
+    .t-step.reveal.visible .t-node { animation: nodePop 0.52s cubic-bezier(0.34,1.5,0.64,1) 0.35s both; }
+    .t-step:hover .t-node { box-shadow:0 6px 22px rgba(59,130,246,0.3); transform: scale(1.12); }
+    .t-ttl { font-size:0.78rem; font-weight:700; color:var(--navy); margin-bottom:0.3rem; }
+    .t-dsc { font-size:0.69rem; color:var(--muted); line-height:1.55; max-width:88px; }
+    .proc-note {
+      margin-top:3.5rem; display:flex; gap:1.1rem; align-items:flex-start;
+      background:#fff; border:1px solid rgba(59,130,246,0.15); border-radius:14px;
+      padding:1.3rem 1.6rem; max-width:820px;
+    }
+    .pn-ico { flex-shrink:0; width:34px; height:34px; border-radius:50%; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.18); display:flex; align-items:center; justify-content:center; color:var(--blue); }
+    .pn-txt { font-size:0.85rem; color:var(--muted); line-height:1.72; }
+    .pn-txt strong { color:var(--text); font-weight:600; }
+
+    /* ─────────────────────────────────────
+       07b HOW THE HOTSPOTS WORK
+    ───────────────────────────────────── */
+    #s07b { padding:7rem 0; background:var(--navy); overflow:hidden; position:relative; }
+    .s07b-bg {
+      position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse 50% 60% at 85% 20%, rgba(74,216,255,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 55% at 10% 80%, rgba(30,64,175,0.2) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    #s07b .container { position:relative; z-index:3; }
+    .hot-grid { display:grid; grid-template-columns:1.3fr 1fr; gap:3rem; align-items:flex-start; }
+    .hot-steps { display:flex; flex-direction:column; gap:1.1rem; }
+    .hot-step {
+      display:flex; gap:1.1rem; align-items:flex-start;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.07);
+      border-radius:14px; padding:1.3rem 1.5rem;
+      transition:background 0.2s ease, border-color 0.2s ease;
+    }
+    .hot-step:hover { background:rgba(255,255,255,0.06); border-color:rgba(74,216,255,0.2); }
+    .hs-num {
+      flex-shrink:0; width:34px; height:34px; border-radius:50%;
+      background:rgba(74,216,255,0.1); border:1px solid rgba(74,216,255,0.25);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.7rem; font-weight:700; color:var(--cyan); letter-spacing:0.02em;
+    }
+    .hs-ttl { font-size:0.92rem; font-weight:700; color:#fff; letter-spacing:-0.014em; margin-bottom:0.32rem; }
+    .hs-dsc { font-size:0.82rem; color:rgba(255,255,255,0.54); line-height:1.65; }
+    .hot-aside {
+      background:linear-gradient(145deg, rgba(74,216,255,0.06), rgba(30,64,175,0.08));
+      border:1px solid rgba(74,216,255,0.18);
+      border-radius:16px; padding:1.9rem 2rem;
+    }
+    .ha-lbl { font-size:0.64rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.85rem; }
+    .ha-p { font-size:0.88rem; color:rgba(255,255,255,0.68); line-height:1.72; }
+    .ha-p strong { color:#fff; font-weight:600; }
+    .ha-p-sub { margin-top:0.9rem; color:rgba(255,255,255,0.5); font-size:0.82rem; }
+
+    /* ─────────────────────────────────────
+       08 TIERS
+    ───────────────────────────────────── */
+    #s08 { padding:7rem 0; background:var(--pale); }
+    .tiers-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
+    .tier {
+      background:#fff; border:1px solid var(--border); border-radius:20px;
+      padding:2rem; display:flex; flex-direction:column;
+      box-shadow:0 4px 16px rgba(10,17,40,0.05);
+      transition:box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .tier:hover { box-shadow:0 12px 40px rgba(10,17,40,0.1); border-color:rgba(59,130,246,0.24); }
+    .tier-feat {
+      background:linear-gradient(145deg,#0A1128,#0E1C3D);
+      border:1px solid rgba(74,216,255,0.18);
+      box-shadow:0 8px 32px rgba(10,17,40,0.3);
+    }
+    .tier-feat:hover { box-shadow:0 16px 48px rgba(10,17,40,0.4); }
+    .t-badge {
+      display:inline-flex; align-items:center;
+      padding:0.17rem 0.52rem; border-radius:100px;
+      font-size:0.61rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.08em;
+      margin-bottom:1rem; align-self:flex-start;
+    }
+    .tb-a { background:var(--pale);               color:var(--blue); border:1px solid var(--border); }
+    .tb-b { background:rgba(74,216,255,0.09);     color:var(--cyan); border:1px solid rgba(74,216,255,0.2); }
+    .tb-c { background:rgba(59,130,246,0.08);     color:var(--mid);  border:1px solid rgba(59,130,246,0.2); }
+    .t-name { font-size:1.08rem; font-weight:700; letter-spacing:-0.018em; margin-bottom:0.38rem; }
+    .tier:not(.tier-feat) .t-name { color:var(--navy); }
+    .tier-feat .t-name { color:#fff; }
+    .t-desc { font-size:0.82rem; line-height:1.65; margin-bottom:1.4rem; }
+    .tier:not(.tier-feat) .t-desc { color:var(--muted); }
+    .tier-feat .t-desc { color:rgba(255,255,255,0.5); }
+    .t-div { height:1px; margin-bottom:1.15rem; }
+    .tier:not(.tier-feat) .t-div { background:var(--border); }
+    .tier-feat .t-div { background:rgba(255,255,255,0.07); }
+    .t-slbl { font-size:0.61rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.55rem; }
+    .tier:not(.tier-feat) .t-slbl { color:var(--muted); }
+    .tier-feat .t-slbl { color:rgba(255,255,255,0.36); }
+    .t-list { list-style:none; margin-bottom:1.15rem; }
+    .t-list li { font-size:0.8rem; line-height:1.6; padding:0.16rem 0; display:flex; align-items:flex-start; gap:0.36rem; }
+    .tier:not(.tier-feat) .t-list li { color:var(--text); }
+    .tier-feat .t-list li { color:rgba(255,255,255,0.68); }
+    .t-list li::before { content:'✓'; font-size:0.67rem; font-weight:700; flex-shrink:0; margin-top:0.18rem; }
+    .tier:not(.tier-feat) .t-list li::before { color:var(--mid); }
+    .tier-feat .t-list li::before { color:var(--cyan); }
+
+    /* ─────────────────────────────────────
+       09 PRICING
+    ───────────────────────────────────── */
+    #s09 { padding:7rem 0; background:var(--navy); overflow:hidden; position:relative; }
+    .s09-bg { position:absolute; inset:0; background:radial-gradient(ellipse 50% 60% at 50% 0%,rgba(59,130,246,0.14) 0%,transparent 70%); pointer-events:none; }
+    .s09-rel { position:relative; z-index:3; }
+    .price-card {
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
+      border-radius:24px; padding:3rem; max-width:620px; margin:3rem auto 0;
+    }
+    .price-big { font-size:4.2rem; font-weight:800; letter-spacing:-0.04em; color:#fff; line-height:1; }
+    .price-unit { font-size:0.96rem; color:rgba(255,255,255,0.4); margin-bottom:2.25rem; margin-top:0.18rem; }
+    .price-row { display:flex; justify-content:space-between; align-items:center; padding:0.86rem 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .price-row:last-of-type { border-bottom:none; }
+    .pr-l { font-size:0.85rem; color:rgba(255,255,255,0.48); }
+    .pr-v { font-size:0.9rem; font-weight:600; color:#fff; }
+    .pr-v-c { color:var(--cyan); }
+    .price-note { font-size:0.76rem; color:rgba(255,255,255,0.4); text-align:center; margin-top:2.25rem; line-height:1.65; max-width:620px; margin-left:auto; margin-right:auto; }
+
+    .price-example {
+      max-width:620px; margin:1.5rem auto 0;
+      background:rgba(74,216,255,0.05); border:1px solid rgba(74,216,255,0.18);
+      border-radius:16px; padding:1.6rem 1.9rem;
+    }
+    .pex-lbl { font-size:0.66rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.9rem; }
+    .pex-grid { display:flex; flex-direction:column; gap:0.55rem; }
+    .pex-row { display:flex; justify-content:space-between; align-items:baseline; font-size:0.88rem; }
+    .pex-k { color:rgba(255,255,255,0.55); }
+    .pex-v { color:#fff; font-weight:700; }
+    .pex-v em { font-style:normal; color:rgba(255,255,255,0.5); font-weight:500; }
+    .pex-v-c { color:var(--cyan); }
+
+    /* ─────────────────────────────────────
+       09b TWO-SCAN PACKAGE
+    ───────────────────────────────────── */
+    #s09b { padding:7rem 0; background:#fff; }
+    .ts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.75rem; margin-top:3rem; }
+    .ts-card {
+      background:#F8F9FC; border:1px solid var(--border); border-radius:20px;
+      padding:2.2rem; display:flex; flex-direction:column;
+      transition:box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .ts-card:hover { box-shadow:0 12px 36px rgba(10,17,40,0.08); border-color:rgba(59,130,246,0.22); }
+    .ts-card-feat {
+      background:linear-gradient(145deg,#0A1128,#0E1C3D);
+      border:1px solid rgba(74,216,255,0.16);
+      box-shadow:0 8px 28px rgba(10,17,40,0.25);
+    }
+    .ts-card-feat:hover { box-shadow:0 14px 40px rgba(10,17,40,0.35); }
+    .ts-tag {
+      display:inline-flex; align-items:center; align-self:flex-start;
+      padding:0.2rem 0.6rem; border-radius:100px;
+      font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.09em;
+      margin-bottom:1.1rem;
+    }
+    .ts-tag-a { background:var(--pale); color:var(--blue); border:1px solid var(--border); }
+    .ts-tag-b { background:rgba(74,216,255,0.1); color:var(--cyan); border:1px solid rgba(74,216,255,0.22); }
+    .ts-ttl { font-size:1.12rem; font-weight:700; letter-spacing:-0.018em; margin-bottom:0.8rem; }
+    .ts-card:not(.ts-card-feat) .ts-ttl { color:var(--navy); }
+    .ts-card-feat .ts-ttl { color:#fff; }
+    .ts-bdy { font-size:0.87rem; line-height:1.72; margin-bottom:1.2rem; }
+    .ts-card:not(.ts-card-feat) .ts-bdy { color:var(--muted); }
+    .ts-card-feat .ts-bdy { color:rgba(255,255,255,0.6); }
+    .ts-bdy strong { font-weight:600; }
+    .ts-card:not(.ts-card-feat) .ts-bdy strong { color:var(--text); }
+    .ts-card-feat .ts-bdy strong { color:#fff; }
+    .ts-list { list-style:none; padding:0; border-top:1px solid; padding-top:1rem; }
+    .ts-card:not(.ts-card-feat) .ts-list { border-color:var(--border); }
+    .ts-card-feat .ts-list { border-color:rgba(255,255,255,0.08); }
+    .ts-list li {
+      font-size:0.8rem; line-height:1.58; padding:0.22rem 0;
+      display:flex; align-items:flex-start; gap:0.4rem;
+    }
+    .ts-list li::before { content:'→'; flex-shrink:0; font-weight:700; margin-top:0.04rem; }
+    .ts-card:not(.ts-card-feat) .ts-list li { color:var(--text); }
+    .ts-card:not(.ts-card-feat) .ts-list li::before { color:var(--mid); }
+    .ts-card-feat .ts-list li { color:rgba(255,255,255,0.72); }
+    .ts-card-feat .ts-list li::before { color:var(--cyan); }
+    .ts-bonus {
+      margin-top:1.75rem; display:flex; gap:1.25rem; align-items:flex-start;
+      background:linear-gradient(145deg, rgba(59,130,246,0.05), rgba(74,216,255,0.03));
+      border:1px solid rgba(59,130,246,0.15); border-radius:14px;
+      padding:1.4rem 1.6rem;
+    }
+    .tsb-ico { flex-shrink:0; width:42px; height:42px; border-radius:10px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:center; color:var(--mid); }
+    .tsb-ttl { font-size:0.94rem; font-weight:700; color:var(--navy); letter-spacing:-0.014em; margin-bottom:0.3rem; }
+    .tsb-bdy { font-size:0.84rem; color:var(--muted); line-height:1.68; }
+    .ts-fn { margin-top:1.4rem; font-size:0.78rem; color:var(--muted); text-align:center; line-height:1.6; }
+
+    /* ─────────────────────────────────────
+       10 REFERRAL
+    ───────────────────────────────────── */
+    #s10 { padding:7rem 0; background:#fff; }
+    .ref-intro { font-size:0.92rem; color:var(--muted); line-height:1.72; max-width:600px; margin-top:0.7rem; }
+    .ref-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:3rem; }
+    .ref-grid-single { display:flex; justify-content:center; margin-top:3rem; }
+    .ref-grid-single .ref-yr { max-width:520px; width:100%; }
+    .ry-subtle { font-weight:500; color:rgba(255,255,255,0.5); font-size:0.76rem; }
+    .ry2 .ry-subtle { color:var(--muted); }
+    .ref-yr { border-radius:20px; padding:2.75rem 2.5rem; text-align:center; position:relative; overflow:hidden; }
+    .ry1 { background:linear-gradient(145deg,#0A1128,#0E1C3D); border:1px solid rgba(74,216,255,0.14); }
+    .ry2 { background:var(--pale); border:1px solid var(--border); }
+    .ry-lbl { font-size:0.67rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:1rem; }
+    .ry1 .ry-lbl { color:var(--cyan); }
+    .ry2 .ry-lbl { color:var(--blue); }
+    .ry-pct { font-size:5.5rem; font-weight:800; letter-spacing:-0.045em; line-height:1; margin-bottom:0.45rem; }
+    .ry1 .ry-pct { color:#fff; }
+    .ry2 .ry-pct { color:var(--navy); }
+    .ry-sub { font-size:0.81rem; margin-bottom:1.7rem; }
+    .ry1 .ry-sub { color:rgba(255,255,255,0.44); }
+    .ry2 .ry-sub { color:var(--muted); }
+    .ry-eg { font-size:0.8rem; padding:0.78rem 1rem; border-radius:9px; line-height:1.55; }
+    .ry1 .ry-eg { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); }
+    .ry2 .ry-eg { background:#fff; color:var(--muted); border:1px solid var(--border); }
+    .ry1 .ry-eg strong { color:#fff; }
+    .ry2 .ry-eg strong { color:var(--navy); }
+    .ref-ftr { margin-top:2.5rem; font-size:0.82rem; color:var(--muted); line-height:1.65; max-width:620px; }
+
+    /* ─────────────────────────────────────
+       11 HOSTING
+    ───────────────────────────────────── */
+    #s11 { padding:7rem 0; background:var(--pale); }
+    .host-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:2.5rem; }
+    .h-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:1.75rem; box-shadow:0 2px 12px rgba(10,17,40,0.04); }
+    .h-icon { width:38px;height:38px; border-radius:9px; background:var(--pale); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; margin-bottom:1rem; }
+    .h-ttl { font-size:0.93rem; font-weight:700; color:var(--navy); margin-bottom:0.38rem; }
+    .h-bdy { font-size:0.81rem; line-height:1.65; color:var(--muted); }
+    .host-assurance {
+      background:linear-gradient(145deg,#0A1128,#0E1C3D); border-radius:20px;
+      padding:2.5rem 3rem; margin-top:1.75rem;
+      display:flex; align-items:center; justify-content:space-between;
+      border:1px solid rgba(74,216,255,0.1);
+    }
+    .ha-txt { max-width:520px; }
+    .ha-ttl { font-size:1.06rem; font-weight:700; color:#fff; letter-spacing:-0.015em; margin-bottom:0.38rem; }
+    .ha-bdy { font-size:0.83rem; color:rgba(255,255,255,0.47); line-height:1.65; }
+    .ha-up  { text-align:center; flex-shrink:0; padding-left:2rem; }
+    .ha-upv { font-size:2.6rem; font-weight:800; letter-spacing:-0.03em; color:var(--cyan); line-height:1; }
+    .ha-upl { font-size:0.66rem; color:rgba(255,255,255,0.34); text-transform:uppercase; letter-spacing:0.08em; margin-top:0.22rem; }
+
+    /* ─────────────────────────────────────
+       11b PAYMENT TERMS
+    ───────────────────────────────────── */
+    #s11b { padding:7rem 0; background:#fff; }
+    .pay-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-top:3rem; }
+    .pay-card {
+      background:#F8F9FC; border:1px solid var(--border); border-radius:16px;
+      padding:1.75rem; position:relative;
+      transition:box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .pay-card:hover { box-shadow:0 10px 28px rgba(10,17,40,0.08); border-color:rgba(59,130,246,0.22); }
+    .pay-num {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:32px; height:32px; border-radius:50%;
+      background:var(--pale); border:1px solid var(--border);
+      font-size:0.68rem; font-weight:700; color:var(--blue); letter-spacing:0.02em;
+      margin-bottom:1rem;
+    }
+    .pay-ttl { font-size:0.93rem; font-weight:700; color:var(--navy); letter-spacing:-0.015em; margin-bottom:0.45rem; }
+    .pay-bdy { font-size:0.8rem; color:var(--muted); line-height:1.68; }
+    .pay-fn { margin-top:2rem; font-size:0.82rem; color:var(--muted); line-height:1.65; max-width:720px; }
+
+    /* ─────────────────────────────────────
+       12 NEXT STEPS
+    ───────────────────────────────────── */
+    #s12 { padding:7rem 0; background:var(--navy); overflow:hidden; position:relative; }
+    .s12-bg {
+      position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse 55% 50% at 8% 80%,rgba(30,64,175,0.2) 0%,transparent 60%),
+        radial-gradient(ellipse 45% 40% at 92% 15%,rgba(74,216,255,0.07) 0%,transparent 60%);
+      pointer-events:none;
+    }
+    .s12-rel { position:relative; z-index:3; }
+    .act-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-top:3rem; }
+    .act-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:2rem; text-align:center; transition:background 0.2s ease; }
+    .act-card:hover { background:rgba(255,255,255,0.07); }
+    .act-num { display:inline-flex; align-items:center; justify-content:center; width:36px;height:36px; border-radius:50%; background:rgba(74,216,255,0.09); border:1px solid rgba(74,216,255,0.18); font-size:0.74rem; font-weight:700; color:var(--cyan); margin:0 auto 1rem; }
+    .act-ttl { font-size:0.98rem; font-weight:700; color:#fff; letter-spacing:-0.014em; margin-bottom:0.48rem; }
+    .act-dsc { font-size:0.81rem; color:rgba(255,255,255,0.44); line-height:1.65; }
+    .contact-block { margin-top:3.5rem; padding-top:2.5rem; border-top:1px solid rgba(255,255,255,0.06); text-align:center; }
+    .c-name { font-size:1.04rem; font-weight:600; color:#fff; margin-bottom:0.18rem; }
+    .c-role { font-size:0.79rem; color:rgba(255,255,255,0.36); margin-bottom:1.2rem; }
+    .c-links { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+    .c-link {
+      display:inline-flex; align-items:center; gap:0.38rem;
+      padding:0.46rem 0.96rem;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09);
+      border-radius:8px; color:rgba(255,255,255,0.62); font-size:0.79rem;
+      text-decoration:none; transition:background 0.2s ease, color 0.2s ease;
+    }
+    .c-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+    /* Footer */
+    .page-footer {
+      background:#050810; padding:1.4rem 2rem;
+      display:flex; align-items:center; justify-content:space-between;
+      border-top:1px solid rgba(255,255,255,0.04); flex-wrap:wrap; gap:1rem;
+    }
+    .ft-logos { display:flex; align-items:center; gap:1.15rem; }
+    .ft-logos img { height:20px; opacity:0.52; display:block; }
+    .ft-logos .fsep { width:1px; height:14px; background:rgba(255,255,255,0.1); }
+    .ft-copy { font-size:0.69rem; color:rgba(255,255,255,0.2); }
+
+    /* ─────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────── */
+    @media (max-width:860px) {
+      .d-grid,.tco-grid,.hw-grid,.tiers-grid,.ref-grid,.host-grid,.act-grid,
+      .own-grid,.hot-grid,.ts-grid,.pay-grid { grid-template-columns:1fr; }
+      .pay-grid { gap:1rem; }
+      .opp-stats { grid-template-columns:1fr 1fr; }
+      .nav-links { display:none; }
+      .timeline { flex-direction:column; gap:1.5rem; }
+      .timeline::before { top:0;bottom:0;left:21px;right:auto;width:3px;height:100%; background:linear-gradient(to bottom,var(--cyan),var(--mid),var(--blue)); transform-origin:top center; transform:scaleY(1); }
+      .timeline.reveal:not(.visible)::before { transform:scaleY(0); }
+      .timeline.reveal.visible::before { animation: lineGrowY 1.5s cubic-bezier(0.16,1,0.3,1) 0.15s forwards; }
+      .t-step { flex-direction:row; align-items:flex-start; text-align:left; gap:1rem; }
+      .t-node { flex-shrink:0; margin-bottom:0; }
+      .host-assurance { flex-direction:column; gap:1.5rem; text-align:center; }
+      .ha-up { padding-left:0; }
+      .ts-bonus,.proc-note { flex-direction:column; gap:0.9rem; }
+      .own-grid { gap:2rem; }
+    }
+    @media (max-width:640px) {
+      .price-big { font-size:3.4rem; }
+      .ts-card,.pay-card { padding:1.7rem; }
+    }
+    /* Utility classes replacing inline styles */
+    .img-invert   { filter: brightness(0) invert(1); }
+    .sh-mb-sm     { margin-bottom: .5rem; }
+    .sh-mb-0      { margin-bottom: 0; }
+    .sec-hdr-lft  { margin-bottom: 3.5rem; }
+    .sec-hdr-lft-sm { margin-bottom: 3rem; }
+
+    @media (max-width:520px) {
+      .opp-stats { grid-template-columns:1fr; }
+      .cov-h1 { font-size:2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="site-nav">
+  <div class="nav-pair">
+    <a href="#s01"><img src="brand_assets/See3D_Vector.png" alt="See3D" /></a>
+    <div class="nsep"></div>
+    <a href="https://www.denaploymanuals.co.uk/" target="_blank" rel="noopener">
+      <img src="https://www.denaploymanuals.co.uk/_Images/V6/denaploy-logo-new.webp"
+           alt="Denaploy"
+           class="img-invert"
+           onerror="this.outerHTML='<span style=\'font-size:.8rem;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:-.01em\'>Denaploy</span>'" />
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="#s02">Opportunity</a>
+    <a href="#s04">vs Matterport</a>
+    <a href="#s04b">Ownership</a>
+    <a href="#s06">Live Tour</a>
+    <a href="#s07b">Hotspots</a>
+    <a href="#s08">Tiers</a>
+    <a href="#s09">Pricing</a>
+    <a href="#s09b">Two-Scan</a>
+    <a href="#s10">Referral</a>
+    <a href="#s11b">Payment</a>
+    <a href="#s12">Next Steps</a>
+  </div>
+</nav>
+
+
+<!-- ═══ 01 — COVER ═══ -->
+<section id="s01" class="grain">
+  <div class="cov-glow-a"></div>
+  <div class="cov-glow-b"></div>
+  <div class="cov-inner">
+    <div class="cov-logos">
+      <img src="brand_assets/See3D_Vector.png" alt="See3D" />
+      <div class="lsep"></div>
+      <img src="https://www.denaploymanuals.co.uk/_Images/V6/denaploy-logo-new.webp"
+           alt="Denaploy"
+           class="img-invert"
+           onerror="this.outerHTML='<span style=\'font-size:1rem;font-weight:700;color:#fff;letter-spacing:-.01em\'>Denaploy</span>'" />
+    </div>
+    <p class="cov-eyebrow">Partnership Proposal — April 2026</p>
+    <h1 class="cov-h1">Virtual Tours<br />for <em>O&amp;M Manuals</em></h1>
+    <p class="cov-sub">Helping Denaploy clients visualise, navigate and maintain their assets — high-resolution 360° scanning delivered alongside every handover package.</p>
+    <span class="cov-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      denaploy.see3d.ai
+    </span>
+  </div>
+  <div class="cov-scroll">
+    <span>Scroll</span>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+
+<!-- ═══ 02 — THE OPPORTUNITY ═══ -->
+<section id="s02">
+  <div class="opp-wrap">
+    <span class="lbl">02 — The Opportunity</span>
+    <h2 class="opp-h2 reveal">O&amp;M documentation is overdue a spatial upgrade.</h2>
+    <p class="opp-p reveal">
+      Today, an operations &amp; maintenance manual is all too often a PDF or a folder of flat drawings stored in the cloud. It describes a building in words — but the people who will operate and maintain that building work in three dimensions.<br /><br />
+      <strong>A virtual tour changes that entirely.</strong> Every plant room, roof void and services corridor becomes navigable from any browser or mobile device. Assets are tagged directly in the space. Engineers can locate and identify equipment before they set foot on site. Contractors and design teams share the same spatial context — without leaving the office.<br /><br />
+      For Denaploy, this is a natural extension of your existing handover package. You already own the client relationship and the documentation brief. See3D provides the spatial layer: a high-resolution, navigable record of the building that ships alongside the O&amp;M manual as a single, unified deliverable — giving your clients something no standard documentation service currently provides at scale.<br /><br />
+      Virtual tours have been technically possible for years, but O&amp;M providers have largely avoided them due to the prohibitive and ongoing costs of platforms like Matterport. See3D removes that barrier entirely: a predictable one-time fee, no subscriptions, and a permanent digital asset the client owns outright.
+    </p>
+    <div class="opp-stats">
+      <div class="reveal">
+        <div class="stat-v">134 MP</div>
+        <div class="stat-l">Panorama resolution per scan point</div>
+      </div>
+      <div class="reveal d1">
+        <div class="stat-v">3–5</div>
+        <div class="stat-l">Working days from site scan to tour delivery</div>
+      </div>
+      <div class="reveal d2">
+        <div class="stat-v">£0</div>
+        <div class="stat-l">Ongoing subscription cost to your clients</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 03 — WHAT SEE3D DELIVERS ═══ -->
+<section id="s03" class="grain">
+  <div class="s03-bg"></div>
+  <div class="container">
+    <div class="sec-hdr">
+      <span class="lbl lbl-light">03 — What See3D Delivers</span>
+      <h2 class="sh sh-light">One scan. Three deliverables.</h2>
+    </div>
+    <div class="d-grid">
+
+      <div class="d-card reveal">
+        <div class="d-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(90 12 12)"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        </div>
+        <div class="d-title">360° Virtual Tour</div>
+        <div class="d-body">A fully navigable, browser-based tour of the building. Hosted on See3D infrastructure — shareable via link or embeddable in any platform including your RIDR portal. Engineers explore every space without stepping on site.</div>
+      </div>
+
+      <div class="d-card reveal d1">
+        <div class="d-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="15.5"/><line x1="22" y1="8.5" x2="2" y2="15.5"/></svg>
+        </div>
+        <div class="d-title">LiDAR 3D Scan</div>
+        <div class="d-body">Millimetre-accurate point cloud data of every scanned space. Usable for as-built drawings, Revit BIM updates or clash detection. Delivered as standard across all service tiers.</div>
+      </div>
+
+      <div class="d-card reveal d2">
+        <div class="d-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="d-title">Downloadable Asset Pack</div>
+        <div class="d-body">Raw 16K panoramic images, floor plan exports and schematic overlays — formatted for inclusion in O&amp;M documentation or handover portals. Everything your client needs in a single structured package.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 04 — WHY NOT MATTERPORT ═══ -->
+<section id="s04">
+  <div class="container">
+    <span class="lbl">04 — Why Not Matterport</span>
+    <h2 class="sh sh-dark sh-mb-sm reveal">The subscription model is broken<br />for asset documentation.</h2>
+    <p class="sec-intro reveal">O&amp;M manuals need to be useful in year 5 and year 10. A platform fee that never ends is the wrong model for long-lived assets. Here's what three years of Matterport actually costs, versus the See3D approach.</p>
+    <div class="tco-grid">
+
+      <div class="tco-card tco-light reveal">
+        <div class="tco-ey">Competitor</div>
+        <div class="tco-bn">Matterport*</div>
+        <div class="tco-ds">Subscription-based — you pay to keep tours accessible</div>
+        <div class="tco-row"><span class="tco-rl">Hardware (Pro3 camera)</span><span class="tco-rv">~£4,995</span></div>
+        <div class="tco-row"><span class="tco-rl">Business plan — Year 1</span><span class="tco-rv">~£3,700</span></div>
+        <div class="tco-row"><span class="tco-rl">Business plan — Year 2</span><span class="tco-rv">~£3,700</span></div>
+        <div class="tco-row"><span class="tco-rl">Business plan — Year 3</span><span class="tco-rv">~£3,700</span></div>
+        <div class="tco-tot">
+          <span class="tco-tl">3-Year Total</span>
+          <span class="tco-tv">~£16,100</span>
+        </div>
+        <span class="tco-pill tp-bad">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Subscription continues even after the project ends
+        </span>
+      </div>
+
+      <div class="tco-card tco-dark reveal d1">
+        <div class="tco-ey">Our Model</div>
+        <div class="tco-bn">See3D*</div>
+        <div class="tco-ds">One-time scan fee per project. No hardware. No recurring cost.</div>
+        <div class="tco-row"><span class="tco-rl">Hardware investment</span><span class="tco-rv">£0 — See3D supplies</span></div>
+        <div class="tco-row"><span class="tco-rl">Scan fee (5-floor project)</span><span class="tco-rv">£3,750</span></div>
+        <div class="tco-row"><span class="tco-rl">Hosting — Years 1 &amp; 2</span><span class="tco-rv">Included</span></div>
+        <div class="tco-row"><span class="tco-rl">Year 3+ hosting</span><span class="tco-rv">Optional / low-cost</span></div>
+        <div class="tco-tot">
+          <span class="tco-tl">Cost model</span>
+          <span class="tco-tv">Pay per project</span>
+        </div>
+        <span class="tco-pill tp-good">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          No lock-in. No subscription. No surprise invoices.
+        </span>
+      </div>
+
+    </div>
+    <p class="tco-fn">* Figures are demonstrative only. Matterport hardware price based on UK reseller listings (survey-tech.co.uk, April 2026); Business plan annual rate reflects Matterport's May 2025 subscription update. Actual costs vary by reseller margin, promotional offers, active-space count and VAT treatment. See3D example based on a 5-floor commercial handover at the standard per-floor rate.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 04b — OWNERSHIP & PLATFORM ═══ -->
+<section id="s04b">
+  <div class="container">
+    <div class="sec-hdr-lft">
+      <span class="lbl">04b — Ownership &amp; Platform</span>
+      <h2 class="sh sh-dark">A permanent asset, on infrastructure you control.</h2>
+    </div>
+    <div class="own-grid">
+      <div class="own-col reveal">
+        <p class="own-p">See3D uses the <strong>Realsee Galois M2</strong>, a professional-grade 360° camera that operates entirely outside Matterport's closed ecosystem. Combined with <strong>3DVista Virtual Tour Pro</strong> — the industry's leading tour authoring platform — this hardware and software pairing gives clients complete ownership of their deliverables: full-resolution assets, exported files, and a tour that lives on infrastructure they control.</p>
+        <p class="own-p">The result is straightforward: a one-time fee, no platform subscriptions, and no recurring costs. Where Matterport charges providers and clients alike for continued access to their own data, See3D hands over a permanent asset on day one. On equivalent projects, this typically means significantly lower cost — without any compromise on output quality. On resolution, See3D's captures match or exceed what Matterport's hardware produces.</p>
+      </div>
+      <div class="own-col reveal d1">
+        <p class="own-p">The tour itself is also built for longevity. Clickable hotspots within the tour can be connected directly to live data sources — whether that's an existing asset register, a spreadsheet, or a document library. When the underlying data changes, the tour updates automatically. No republishing, no manual edits, no call back to us.</p>
+        <div class="own-badges">
+          <div class="own-badge"><div class="ob-v">Realsee Galois M2</div><div class="ob-l">Hardware — independent of Matterport</div></div>
+          <div class="own-badge"><div class="ob-v">3DVista Pro</div><div class="ob-l">Tour authoring — exportable, self-hostable</div></div>
+          <div class="own-badge"><div class="ob-v">Live-linked hotspots</div><div class="ob-l">Spreadsheet-driven; no proprietary editor required</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 05 — THE HARDWARE ═══ -->
+<section id="s05">
+  <div class="container">
+    <div class="hw-grid">
+
+      <div class="hw-img reveal">
+        <img src="Realsee_images/Galois_M2.jpg" alt="Realsee Galois M2 — 360° LiDAR camera paired with mobile capture app" />
+      </div>
+
+      <div class="reveal d1">
+        <span class="lbl">05 — The Hardware</span>
+        <h2 class="hw-h2">Realsee Galois M2</h2>
+        <p class="hw-p">For O&amp;M documentation, resolution is a functional requirement — not a luxury. Maintenance engineers need to read asset labels, identify model numbers, locate isolation valves and trace pipe runs directly from the tour. That demands a camera that captures fine detail at distance. The Realsee Galois M2 delivers 16,384 × 8,192 pixel panoramas at every scan point — equivalent to 134 megapixels per image — with an integrated 940 nm Class 1 LiDAR for depth capture.</p>
+        <div class="hw-specs">
+          <div class="spec-chip"><div class="spec-v">134 MP</div><div class="spec-l">Per panorama (16K)</div></div>
+          <div class="spec-chip"><div class="spec-v">360° × 155°</div><div class="spec-l">LiDAR field of view</div></div>
+          <div class="spec-chip"><div class="spec-v">0.2–25 m</div><div class="spec-l">LiDAR scanning range</div></div>
+          <div class="spec-chip"><div class="spec-v">±20 mm</div><div class="spec-l">Accuracy at 10 m</div></div>
+        </div>
+        <p class="hw-fn">At this resolution, asset nameplates, serial numbers and warning labels remain legible when zoomed in on screen. That's the detail level O&amp;M users need — and what separates a useful spatial record from a decorative one. Point cloud output: e57, ply. Model formats: obj, fbx, gltf, glb.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 06 — LIVE EXAMPLE ═══ -->
+<section id="s06">
+  <div class="tour-overlay">
+    <div>
+      <div class="tour-lbl">06 — Tour Quality</div>
+      <div class="tour-ttl">White Heron — Live Tour</div>
+    </div>
+    <a href="https://tours.see3d.ai/WhiteHeron/" target="_blank" rel="noopener" class="tour-btn">
+      Open full screen
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
+  </div>
+  <div class="tour-wrap">
+    <iframe src="https://tours.see3d.ai/WhiteHeron/"
+            title="See3D Virtual Tour — White Heron"
+            allow="fullscreen; xr-spatial-tracking"
+            loading="lazy"></iframe>
+  </div>
+</section>
+
+
+<!-- ═══ 07 — THE PROCESS ═══ -->
+<section id="s07">
+  <div class="container">
+    <div class="sec-hdr-lft">
+      <span class="lbl">07 — How It Works</span>
+      <h2 class="sh sh-dark">From brief to integrated O&amp;M asset.</h2>
+    </div>
+    <div class="timeline reveal">
+      <div class="t-step reveal">
+        <div class="t-node">01</div>
+        <div><div class="t-ttl">Brief</div><div class="t-dsc">Scope agreed — floor count, access, delivery format</div></div>
+      </div>
+      <div class="t-step reveal d1">
+        <div class="t-node">02</div>
+        <div><div class="t-ttl">Planning</div><div class="t-dsc">Scan points mapped, site logistics confirmed</div></div>
+      </div>
+      <div class="t-step reveal d2">
+        <div class="t-node">03</div>
+        <div><div class="t-ttl">Site Scan</div><div class="t-dsc">Galois M2 — 134 MP + LiDAR per scan point</div></div>
+      </div>
+      <div class="t-step reveal d3">
+        <div class="t-node">04</div>
+        <div><div class="t-ttl">Editing</div><div class="t-dsc">Tour stitched, wayfinding set, hotspot shells placed</div></div>
+      </div>
+      <div class="t-step reveal d4">
+        <div class="t-node">05</div>
+        <div><div class="t-ttl">Asset Delivery</div><div class="t-dsc">Images, floor plans and point cloud exported</div></div>
+      </div>
+      <div class="t-step reveal d5">
+        <div class="t-node">06</div>
+        <div><div class="t-ttl">O&amp;M Integration</div><div class="t-dsc">Tour link added to Denaploy handover pack</div></div>
+      </div>
+      <div class="t-step reveal d6">
+        <div class="t-node">07</div>
+        <div><div class="t-ttl">Hosting</div><div class="t-dsc">Tour live on See3D servers — accessible indefinitely</div></div>
+      </div>
+    </div>
+    <div class="proc-note reveal">
+      <div class="pn-ico">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="pn-txt">
+        <strong>On hotspot tagging:</strong> See3D covers the photography, tour build and hotspot placement (step 04). The asset data itself — equipment descriptions, datasheet links, service dates, responsible contractor — is populated by whoever best knows the build: typically Denaploy or the main contractor, via the live-linked spreadsheet described in section 07b. Because the sheet drives the tour, no 3DVista licence or tour-editor familiarity is needed to keep the O&amp;M data current. Exact scope of data-entry responsibility is agreed per project.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 07b — HOW THE HOTSPOTS WORK ═══ -->
+<section id="s07b" class="grain">
+  <div class="s07b-bg"></div>
+  <div class="container">
+    <div class="sec-hdr-lft">
+      <span class="lbl lbl-light">07b — How the Hotspots Work</span>
+      <h2 class="sh sh-light">The tour is a shell. The data lives in a spreadsheet.</h2>
+    </div>
+    <div class="hot-grid">
+      <div class="hot-steps">
+        <div class="hot-step reveal">
+          <div class="hs-num">01</div>
+          <div>
+            <div class="hs-ttl">See3D delivers the tour shell</div>
+            <div class="hs-dsc">Hotspots are placed at every asset location — plant, valves, DBs, AHUs, fire panels. Each hotspot is an empty container waiting for data.</div>
+          </div>
+        </div>
+        <div class="hot-step reveal d1">
+          <div class="hs-num">02</div>
+          <div>
+            <div class="hs-ttl">See3D sets up the live-linked spreadsheet</div>
+            <div class="hs-dsc">An Airtable / Google Sheet is wired to the tour with standard columns: asset name, description, document links, service dates, responsible contractor, warranty period, location reference.</div>
+          </div>
+        </div>
+        <div class="hot-step reveal d2">
+          <div class="hs-num">03</div>
+          <div>
+            <div class="hs-ttl">Denaploy or the main contractor populate the sheet</div>
+            <div class="hs-dsc">Data entry only — in a tool the team already knows. No 3DVista licence required, no bespoke software, no training on a proprietary editor. The people closest to the build populate it.</div>
+          </div>
+        </div>
+        <div class="hot-step reveal d3">
+          <div class="hs-num">04</div>
+          <div>
+            <div class="hs-ttl">The tour self-populates from the sheet</div>
+            <div class="hs-dsc">Update a cell, the hotspot updates. Swap a datasheet link, the tour serves the new one. No republishing, no call back to See3D, no version drift between the manual and the model.</div>
+          </div>
+        </div>
+      </div>
+      <div class="hot-aside reveal d1">
+        <div class="ha-lbl">Net effect</div>
+        <p class="ha-p">Your deliverable is the <strong>tour framework</strong>. The O&amp;M knowledge transfer happens in a Google Sheet, not inside proprietary tour software. Nobody needs a 3DVista licence. Nobody needs to understand the tour's internals.</p>
+        <p class="ha-p ha-p-sub">This is also why See3D can hand over a permanently offline copy on request — the tour, the images, the point cloud, and the linked asset data can be exported together as a static package. Clients with air-gapped security requirements can host the deliverable on their own infrastructure.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 08 — SERVICE TIERS ═══ -->
+<section id="s08">
+  <div class="container">
+    <div class="sec-hdr-lft-sm">
+      <span class="lbl">08 — Service Tiers</span>
+      <h2 class="sh sh-dark">Choose the level of involvement that fits your workflow.</h2>
+    </div>
+    <div class="tiers-grid">
+
+      <div class="tier reveal">
+        <span class="t-badge tb-a">Scan Only</span>
+        <div class="t-name">Scan Only</div>
+        <div class="t-desc">See3D delivers the scan output. Denaploy integrates it into the handover package in whatever format suits the project.</div>
+        <div class="t-div"></div>
+        <div class="t-slbl">See3D provides</div>
+        <ul class="t-list">
+          <li>Site scan — all floors, all scan points</li>
+          <li>Processed virtual tour + hosted link</li>
+          <li>Raw 16K panoramic images</li>
+          <li>LiDAR point cloud (.e57 / .las)</li>
+          <li>Embed code for any platform</li>
+        </ul>
+        <div class="t-slbl">Denaploy team</div>
+        <ul class="t-list">
+          <li>Integrates tour link into O&amp;M manual</li>
+          <li>Co-ordinates site access with contractor</li>
+          <li>Manages client relationship throughout</li>
+        </ul>
+      </div>
+
+      <div class="tier tier-feat reveal d1">
+        <span class="t-badge tb-b">Most Popular</span>
+        <div class="t-name">Scan + Template</div>
+        <div class="t-desc">See3D delivers a tour with a branded landing page and asset-tag overlay — designed to sit alongside the O&amp;M documentation as a unified deliverable.</div>
+        <div class="t-div"></div>
+        <div class="t-slbl">See3D provides</div>
+        <ul class="t-list">
+          <li>Everything in Scan Only</li>
+          <li>Branded tour landing page</li>
+          <li>Asset tags linked to manufacturer datasheets</li>
+          <li>Exportable floor plan with scan point map</li>
+        </ul>
+        <div class="t-slbl">Denaploy team</div>
+        <ul class="t-list">
+          <li>Provides manufacturer literature for tagging</li>
+          <li>Reviews and approves asset tag content</li>
+          <li>Adds tour landing page to handover pack</li>
+        </ul>
+      </div>
+
+      <div class="tier reveal d2">
+        <span class="t-badge tb-c">Full Service</span>
+        <div class="t-name">Full Service</div>
+        <div class="t-desc">A fully co-ordinated, white-label delivery where the virtual tour presents as a seamless component of the Denaploy handover.</div>
+        <div class="t-div"></div>
+        <div class="t-slbl">See3D provides</div>
+        <ul class="t-list">
+          <li>Everything in Scan + Template</li>
+          <li>White-label subdomain for the end client</li>
+          <li>Contractor liaison and access co-ordination</li>
+          <li>Post-handover tour update within 12 months</li>
+          <li>Priority support SLA</li>
+        </ul>
+        <div class="t-slbl">Denaploy team</div>
+        <ul class="t-list">
+          <li>Issues purchase order to See3D</li>
+          <li>Presents tour to end client at handover</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 09 — PRICING ═══ -->
+<section id="s09" class="grain">
+  <div class="s09-bg"></div>
+  <div class="container s09-rel">
+    <div class="sec-hdr">
+      <span class="lbl lbl-light">09 — Pricing</span>
+      <h2 class="sh sh-light">Simple, transparent, per-project.</h2>
+    </div>
+    <div class="price-card reveal">
+      <div class="price-big">£750</div>
+      <div class="price-unit">per floor level — all scan points included (subject to cap)</div>
+      <div class="price-row"><span class="pr-l">Scan points per floor</span><span class="pr-v pr-v-c">Included up to agreed cap</span></div>
+      <div class="price-row"><span class="pr-l">Processed virtual tour + hosting</span><span class="pr-v pr-v-c">Included</span></div>
+      <div class="price-row"><span class="pr-l">LiDAR point cloud + raw images</span><span class="pr-v pr-v-c">Included</span></div>
+      <div class="price-row"><span class="pr-l">Travel — Greater London</span><span class="pr-v">Included</span></div>
+      <div class="price-row"><span class="pr-l">Travel — outside Greater London</span><span class="pr-v">Quoted separately</span></div>
+      <div class="price-row"><span class="pr-l">Advance booking (UK-wide travel)</span><span class="pr-v">Required</span></div>
+      <div class="price-row"><span class="pr-l">Subscription / recurring fee</span><span class="pr-v pr-v-c">None</span></div>
+    </div>
+
+    <div class="price-example reveal">
+      <div class="pex-lbl">Worked example — 5-storey building</div>
+      <div class="pex-grid">
+        <div class="pex-row"><span class="pex-k">Tour fee (5 × £750)</span><span class="pex-v">£3,750</span></div>
+        <div class="pex-row"><span class="pex-k">Denaploy referral (Year 1, 20%)</span><span class="pex-v pex-v-c">£750 &nbsp;<em>(£150 per floor)</em></span></div>
+      </div>
+    </div>
+
+    <p class="price-note">Rates are indicative and subject to change depending on project complexity, number of scans required per floor, and overall building size. A cap applies on maximum scans per floor — larger or more complex spaces are scoped and priced individually. Referral fee returned to Denaploy per agreed structure.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 09b — TWO-SCAN PACKAGE ═══ -->
+<section id="s09b">
+  <div class="container">
+    <span class="lbl">09b — Two-Scan Package</span>
+    <h2 class="sh sh-dark sh-mb-sm reveal">Before and after — when early engagement allows it.</h2>
+    <p class="sec-intro reveal">If Denaploy is brought in at the point of procurement — before works begin — See3D can deliver two scans instead of one: a pre-works condition survey and a practical-completion handover scan. The same site, twelve months apart.</p>
+    <div class="ts-grid">
+      <div class="ts-card reveal">
+        <div class="ts-tag ts-tag-a">Pre-works</div>
+        <div class="ts-ttl">Condition Survey Scan</div>
+        <div class="ts-bdy">Captured before the main contractor takes possession. A defensible, time-stamped record of the building's existing condition — every wall, ceiling, service run and finish. Stands independently as a <strong>dilapidations protection</strong> deliverable for the main contractor, regardless of the O&amp;M outcome.</div>
+        <ul class="ts-list">
+          <li>Protects against end-of-lease dilapidations disputes</li>
+          <li>Baseline for damage attribution during the works</li>
+          <li>Standalone value for the main contractor</li>
+        </ul>
+      </div>
+      <div class="ts-card ts-card-feat reveal d1">
+        <div class="ts-tag ts-tag-b">At handover</div>
+        <div class="ts-ttl">Practical Completion Scan</div>
+        <div class="ts-bdy">The primary O&amp;M deliverable — captured at practical completion, tagged with asset data, and integrated into the Denaploy handover package. Exactly as scoped in the Service Tiers.</div>
+        <ul class="ts-list">
+          <li>Feeds directly into the O&amp;M handover pack</li>
+          <li>Hotspots live-linked to the asset data sheet</li>
+          <li>Permanent digital twin for the end client</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ts-bonus reveal">
+      <div class="tsb-ico">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="tsb-txt">
+        <div class="tsb-ttl">Bonus — before-and-after content</div>
+        <div class="tsb-bdy">The two scans together produce compelling side-by-side promotional material for both Denaploy and the end client. A framed, defensible record of the transformation — useful for case studies, marketing, and stakeholder reporting.</div>
+      </div>
+    </div>
+    <p class="ts-fn">Framed as a two-scan package — a natural upsell when the commercial timeline allows early engagement. Priced per scan at the standard per-floor rate, with a combined-package discount available when both scans are booked at commitment.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 10 — REFERRAL STRUCTURE ═══ -->
+<section id="s10">
+  <div class="container">
+    <span class="lbl">10 — Referral Structure</span>
+    <h2 class="sh sh-dark sh-mb-sm reveal">A long-term partnership,<br />not a one-off arrangement.</h2>
+    <p class="ref-intro reveal">The referral fee rewards Denaploy for introducing See3D at the point of project brief — without adding administrative complexity. Fees are calculated on the net scan invoice and settled within 30 days of See3D receiving payment from the end client.</p>
+    <div class="ref-grid-single">
+
+      <div class="ref-yr ry1 reveal">
+        <div class="ry-lbl">Referral — Year 1</div>
+        <div class="ry-pct">20%</div>
+        <div class="ry-sub">of net scan invoice value</div>
+        <div class="ry-eg">Example: £3,750 project (5 floors)<br />Referral fee: <strong>£750</strong> &nbsp;<span class="ry-subtle">(£150 per floor)</span></div>
+      </div>
+
+    </div>
+    <p class="ref-ftr">No upfront costs. No volume commitments. No exclusivity required. Either party may terminate with 30 days' written notice. The arrangement is designed to grow naturally alongside your project pipeline — longer-term commercial terms reviewed together as volume builds.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 11 — HOSTING & LONGEVITY ═══ -->
+<section id="s11">
+  <div class="container">
+    <span class="lbl">11 — Hosting &amp; Longevity</span>
+    <h2 class="sh sh-dark sh-mb-0 reveal">Built to last as long as the building does.</h2></h2>
+    <div class="host-grid">
+
+      <div class="h-card reveal">
+        <div class="h-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="h-ttl">See3D Infrastructure</div>
+        <div class="h-bdy">Tours are hosted on See3D's own servers — not a third-party platform that could change pricing or be discontinued. The tour URL is permanent and always resolves correctly.</div>
+      </div>
+
+      <div class="h-card reveal d1">
+        <div class="h-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </div>
+        <div class="h-ttl">Year 3 and Beyond</div>
+        <div class="h-bdy">Hosting is included for the active project lifecycle. After year 2, clients move to a low-cost annual arrangement or download all assets and self-host. Nothing is locked in.</div>
+      </div>
+
+      <div class="h-card reveal d2">
+        <div class="h-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="h-ttl">Data Portability</div>
+        <div class="h-bdy">Raw panoramic images and point cloud data are delivered as standard. Your clients own their data outright — all source files remain in their possession regardless of hosting arrangement.</div>
+      </div>
+
+    </div>
+    <div class="host-assurance reveal">
+      <div class="ha-txt">
+        <div class="ha-ttl">The tour outlasts the project team.</div>
+        <div class="ha-bdy">An O&amp;M manual needs to be useful in year 5 and year 10, not just at handover. See3D tours are browser-based, device-agnostic and require no installed software. A facilities manager in 2031 can open the same link and navigate the building exactly as it was scanned on handover day.</div>
+      </div>
+      <div class="ha-up">
+        <div class="ha-upv">99.9%</div>
+        <div class="ha-upl">Target uptime SLA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ 11b — PAYMENT TERMS ═══ -->
+<section id="s11b">
+  <div class="container">
+    <span class="lbl">11b — Payment &amp; Commercial Terms</span>
+    <h2 class="sh sh-dark sh-mb-sm reveal">Purchase order on commitment. Invoice on delivery.</h2>
+    <p class="sec-intro reveal">A clean commercial handshake — no retainer, no up-front scan fee, no chasing. See3D starts work against a confirmed PO and invoices only once the deliverable has been accepted.</p>
+    <div class="pay-grid">
+      <div class="pay-card reveal">
+        <div class="pay-num">01</div>
+        <div class="pay-ttl">Purchase order issued</div>
+        <div class="pay-bdy">Denaploy raises a PO against the agreed scope (floor count, scan tier, any two-scan package terms). The PO locks the price and confirms See3D to mobilise site logistics.</div>
+      </div>
+      <div class="pay-card reveal d1">
+        <div class="pay-num">02</div>
+        <div class="pay-ttl">Site scan &amp; production</div>
+        <div class="pay-bdy">See3D attends site, captures the scan, processes the tour, and packages the deliverables — raw panoramic images, LiDAR point cloud, floor plan exports, tour link.</div>
+      </div>
+      <div class="pay-card reveal d2">
+        <div class="pay-num">03</div>
+        <div class="pay-ttl">Deliverable review</div>
+        <div class="pay-bdy">The tour and asset pack are forwarded to Denaploy in the agreed format. Denaploy reviews and confirms acceptance — any scoped revisions are carried out before invoice.</div>
+      </div>
+      <div class="pay-card reveal d3">
+        <div class="pay-num">04</div>
+        <div class="pay-ttl">Invoice — 30 days net</div>
+        <div class="pay-bdy">Invoice issued on acceptance; payment due within 30 days. Referral fee to Denaploy settled within 30 days of See3D receiving payment from the end client.</div>
+      </div>
+    </div>
+    <p class="pay-fn">No subscription, no hosting lock-in, no retrospective charges. Commercial terms mirror the way Denaploy already invoices its own clients — the scan slots into the existing handover workflow without a new billing motion.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 12 — NEXT STEPS ═══ -->
+<section id="s12" class="grain">
+  <div class="s12-bg"></div>
+  <div class="container s12-rel">
+    <div class="sec-hdr">
+      <span class="lbl lbl-light">12 — Next Steps</span>
+      <h2 class="sh sh-light">Three things to move this forward.</h2>
+    </div>
+    <div class="act-grid">
+
+      <div class="act-card reveal">
+        <div class="act-num">1</div>
+        <div class="act-ttl">Agree service tier</div>
+        <div class="act-dsc">Confirm whether Scan Only, Scan + Template or Full Service best fits your current client workflow. We can trial more than one tier across the pilot project.</div>
+      </div>
+
+      <div class="act-card reveal d1">
+        <div class="act-num">2</div>
+        <div class="act-ttl">Select a pilot project</div>
+        <div class="act-dsc">Identify one live or upcoming handover where a virtual tour adds clear value. Ideally a multi-floor project — but any size works as a first run.</div>
+      </div>
+
+      <div class="act-card reveal d2">
+        <div class="act-num">3</div>
+        <div class="act-ttl">Schedule a call</div>
+        <div class="act-dsc">30 minutes is enough to agree scope, walk through the workflow and confirm the referral arrangement in writing. We move fast once a brief is confirmed.</div>
+      </div>
+
+    </div>
+    <div class="contact-block">
+      <div class="c-name">Ollie Hardy</div>
+      <div class="c-role">See3D — Founder &amp; Director</div>
+      <div class="c-links">
+        <a href="mailto:enquiries@see3d.ai" class="c-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          enquiries@see3d.ai
+        </a>
+        <a href="tel:+447399067082" class="c-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.64 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.9a16 16 0 0 0 8 8l1-1a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          +44 7399 067 082
+        </a>
+        <a href="https://www.see3d.ai" target="_blank" rel="noopener" class="c-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          see3d.ai
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="page-footer">
+  <div class="ft-logos">
+    <img src="brand_assets/See3D_Vector.png" alt="See3D" />
+    <div class="fsep"></div>
+    <img src="https://www.denaploymanuals.co.uk/_Images/V6/denaploy-logo-new.webp"
+         alt="Denaploy"
+         style="filter:brightness(0) invert(1);"
+         onerror="this.outerHTML='<span style=\'font-size:.7rem;font-weight:700;color:rgba(255,255,255,.45)\'>Denaploy</span>'" />
+  </div>
+  <div class="ft-copy">See3D × Denaploy — Proposal April 2026 &nbsp;·&nbsp; Confidential</div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* Count-up animation for stat values */
+  function animateCount(el) {
+    const text = el.dataset.original || el.textContent.trim();
+    el.dataset.original = text;
+    const match = text.match(/[\d,]+/);
+    if (!match) return;
+    const target = parseInt(match[0].replace(/,/g,''), 10);
+    const prefix = text.slice(0, match.index);
+    const suffix = text.slice(match.index + match[0].length);
+    const dur = Math.min(1800, target * 12);
+    const start = performance.now();
+    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    function frame(now) {
+      const p = Math.min((now - start) / dur, 1);
+      el.textContent = prefix + Math.round(ease(p) * target) + suffix;
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const statIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCount(e.target);
+        statIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.stat-v').forEach(el => statIO.observe(el));
+</script>
+
+</body>
+</html>

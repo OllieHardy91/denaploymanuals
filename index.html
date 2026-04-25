@@ -362,10 +362,10 @@
     .hw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: center; }
     .hw-img {
       border-radius: 24px; overflow: hidden; box-shadow: none;
-      background: #fff;
+      background: var(--navy);
       position: relative;
     }
-    .hw-img img { width: 100%; display: block; position: relative; z-index: 1; mix-blend-mode: multiply; animation: floatUpSlow 7s ease-in-out infinite; }
+    .hw-img img { width: 100%; display: block; position: relative; z-index: 1; animation: floatUpSlow 7s ease-in-out infinite; }
     .hw-h2 { font-size: clamp(1.65rem,2.8vw,2.25rem); font-weight:700; letter-spacing:-0.025em; color:var(--navy); margin-bottom:0.9rem; }
     .hw-p  { font-size:0.9rem; line-height:1.78; color:var(--muted); margin-bottom:1.75rem; }
     .hw-specs { display:grid; grid-template-columns:1fr 1fr; gap:0.9rem; margin-bottom:1.4rem; }
@@ -747,9 +747,88 @@
     /* ─────────────────────────────────────
        RESPONSIVE
     ───────────────────────────────────── */
+    /* ─────────────────────────────────────
+       09b CONDITION SURVEY SHOWCASE
+    ───────────────────────────────────── */
+    .cs-showcase {
+      margin: 2.5rem 0 2rem;
+      border-radius: 20px; overflow: hidden; position: relative;
+      height: 340px;
+    }
+    .cs-showcase img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .cs-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(10,17,40,0.76) 0%, rgba(10,17,40,0.3) 52%, transparent 75%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 2rem 2.5rem;
+    }
+    .cs-lbl { font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.5rem; }
+    .cs-cap { font-size:1.15rem; font-weight:700; color:#fff; letter-spacing:-0.02em; line-height:1.28; }
+    .cs-sub { font-size:0.79rem; color:rgba(255,255,255,0.55); margin-top:0.35rem; line-height:1.5; }
+
+    /* ─────────────────────────────────────
+       GOLDEN THREAD ELEMENTS
+    ───────────────────────────────────── */
+    .gt-callout {
+      margin-top: 2.5rem; display:flex; gap:1.1rem; align-items:flex-start;
+      background: linear-gradient(135deg, rgba(74,216,255,0.06), rgba(30,64,175,0.04));
+      border:1px solid rgba(74,216,255,0.24); border-radius:14px; padding:1.3rem 1.6rem;
+    }
+    .gtc-icon { flex-shrink:0; width:34px; height:34px; border-radius:50%; background:rgba(74,216,255,0.12); border:1px solid rgba(74,216,255,0.25); display:flex; align-items:center; justify-content:center; color:var(--cyan); }
+    .gtc-title { font-size:0.83rem; font-weight:700; color:var(--navy); letter-spacing:-0.01em; margin-bottom:0.28rem; }
+    .gtc-body  { font-size:0.8rem; color:var(--muted); line-height:1.68; }
+    .gtc-body strong { color:var(--text); font-weight:600; }
+
+    /* GT badge on d-cards (s03) */
+    .gt-badge {
+      margin-top:1.1rem; padding-top:0.85rem;
+      border-top:1px solid rgba(255,255,255,0.06);
+      display:flex; align-items:center; gap:0.4rem;
+      font-size:0.67rem; font-weight:600; letter-spacing:0.03em;
+      color:rgba(74,216,255,0.65);
+    }
+    .gt-badge svg { flex-shrink:0; }
+
+    /* ─────────────────────────────────────
+       07c GOLDEN THREAD
+    ───────────────────────────────────── */
+    #s07c { padding:7rem 0; background:#fff; }
+    .gt-grid { display:grid; grid-template-columns:1fr 1.15fr; gap:4rem; align-items:flex-start; margin-top:3rem; }
+    .gt-intro-p { font-size:0.97rem; line-height:1.8; color:var(--muted); margin-bottom:1.25rem; }
+    .gt-intro-p strong { color:var(--text); font-weight:600; }
+    .gt-act-banner {
+      margin-top:1.75rem; padding:1.3rem 1.6rem;
+      background:linear-gradient(135deg,var(--navy),#0E1C3D);
+      border:1px solid rgba(74,216,255,0.16); border-radius:14px;
+      display:flex; align-items:center; justify-content:space-between; gap:1.25rem;
+    }
+    .gt-act-banner-txt { font-size:0.84rem; color:rgba(255,255,255,0.68); line-height:1.62; }
+    .gt-act-banner-txt strong { color:#fff; font-weight:600; }
+    .gt-act-banner-badge {
+      flex-shrink:0; display:flex; align-items:center; gap:0.4rem;
+      background:rgba(74,216,255,0.1); border:1px solid rgba(74,216,255,0.25);
+      border-radius:8px; padding:0.48rem 0.85rem;
+      font-size:0.73rem; font-weight:700; color:var(--cyan); white-space:nowrap;
+    }
+    .gt-checklist { display:flex; flex-direction:column; gap:0.75rem; }
+    .gt-item {
+      display:flex; gap:1rem; align-items:flex-start;
+      background:#F8F9FC; border:1px solid var(--border);
+      border-radius:12px; padding:1.05rem 1.2rem;
+      transition:border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .gt-item:hover { border-color:rgba(74,216,255,0.3); box-shadow:0 4px 16px rgba(10,17,40,0.06); }
+    .gt-item-check { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:rgba(74,216,255,0.1); border:1px solid rgba(74,216,255,0.25); display:flex; align-items:center; justify-content:center; color:var(--cyan); margin-top:1px; }
+    .gt-item-req { font-size:0.65rem; font-weight:600; color:var(--muted); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:0.2rem; }
+    .gt-item-ans { font-size:0.85rem; font-weight:700; color:var(--navy); letter-spacing:-0.013em; }
+    .gt-item-sub { font-size:0.75rem; color:var(--muted); margin-top:0.18rem; line-height:1.52; }
+
     @media (max-width:860px) {
       .d-grid,.tco-grid,.hw-grid,.tiers-grid,.ref-grid,.host-grid,.act-grid,
-      .own-grid,.hot-grid,.ts-grid,.pay-grid { grid-template-columns:1fr; }
+      .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid { grid-template-columns:1fr; }
+      .gt-act-banner { flex-direction:column; gap:1rem; }
       .pay-grid { gap:1rem; }
       .opp-stats { grid-template-columns:1fr 1fr; }
       .nav-links { display:none; }
@@ -801,6 +880,7 @@
     <a href="#s04b">Ownership</a>
     <a href="#s06">Live Tour</a>
     <a href="#s07b">Hotspots</a>
+    <a href="#s07c">Golden Thread</a>
     <a href="#s08">Tiers</a>
     <a href="#s09">Pricing</a>
     <a href="#s09b">Two-Scan</a>
@@ -848,8 +928,18 @@
       Today, an operations &amp; maintenance manual is all too often a PDF or a folder of flat drawings stored in the cloud. It describes a building in words — but the people who will operate and maintain that building work in three dimensions.<br /><br />
       <strong>A virtual tour changes that entirely.</strong> Every plant room, roof void and services corridor becomes navigable from any browser or mobile device. Assets are tagged directly in the space. Engineers can locate and identify equipment before they set foot on site. Contractors and design teams share the same spatial context — without leaving the office.<br /><br />
       For Denaploy, this is a natural extension of your existing handover package. You already own the client relationship and the documentation brief. See3D provides the spatial layer: a high-resolution, navigable record of the building that ships alongside the O&amp;M manual as a single, unified deliverable — giving your clients something no standard documentation service currently provides at scale.<br /><br />
-      Virtual tours have been technically possible for years, but O&amp;M providers have largely avoided them due to the prohibitive and ongoing costs of platforms like Matterport. See3D removes that barrier entirely: a predictable one-time fee, no subscriptions, and a permanent digital asset the client owns outright.
+      Virtual tours have been technically possible for years, but O&amp;M providers have largely avoided them due to the prohibitive and ongoing costs of platforms like Matterport. See3D removes that barrier entirely: a predictable one-time fee, no subscriptions, and a permanent digital asset the client owns outright.<br /><br />
+      The timing matters too. The <strong>Building Safety Act 2022</strong> introduced a mandatory 'Golden Thread' of building information for Higher-Risk Buildings — requiring photographic records, as-built floor plans, and O&amp;M data to be maintained in accessible digital format throughout a building's lifecycle. Denaploymanuals already delivers the O&amp;M layer. A See3D scan adds the spatial evidence that makes a handover package Golden Thread-ready.
     </p>
+    <div class="gt-callout reveal">
+      <div class="gtc-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="gtc-title">Building Safety Act 2022 — Golden Thread (Section 88)</div>
+        <p class="gtc-body">Higher-Risk Buildings now require a digital 'single source of truth' — including photographic records, as-built drawings, O&amp;M information, and safety-critical building data. <strong>This partnership delivers all of it.</strong> Denaploymanuals provides the O&amp;M manual. See3D provides the navigable spatial record your clients are legally required to maintain.</p>
+      </div>
+    </div>
     <div class="opp-stats">
       <div class="reveal">
         <div class="stat-v">134 MP</div>
@@ -884,6 +974,10 @@
         </div>
         <div class="d-title">360° Virtual Tour</div>
         <div class="d-body">A fully navigable, browser-based tour of the building. Hosted on See3D infrastructure — shareable via link or embeddable in any platform including your RIDR portal. Engineers explore every space without stepping on site.</div>
+        <div class="gt-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Golden Thread: photographic records (BSA 2022, Sch. 1)
+        </div>
       </div>
 
       <div class="d-card reveal d1">
@@ -892,6 +986,10 @@
         </div>
         <div class="d-title">LiDAR 3D Scan</div>
         <div class="d-body">Millimetre-accurate point cloud data of every scanned space. Usable for as-built drawings, Revit BIM updates or clash detection. Delivered as standard across all service tiers.</div>
+        <div class="gt-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Golden Thread: as-built floor plans &amp; condition record
+        </div>
       </div>
 
       <div class="d-card reveal d2">
@@ -900,6 +998,10 @@
         </div>
         <div class="d-title">Downloadable Asset Pack</div>
         <div class="d-body">Raw 16K panoramic images, floor plan exports and schematic overlays — formatted for inclusion in O&amp;M documentation or handover portals. Everything your client needs in a single structured package.</div>
+        <div class="gt-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Golden Thread: maintenance information &amp; product details
+        </div>
       </div>
 
     </div>
@@ -988,7 +1090,7 @@
     <div class="hw-grid">
 
       <div class="hw-img reveal">
-        <img src="Realsee_images/Galois_M2.jpg" alt="Realsee Galois M2 — 360° LiDAR camera paired with mobile capture app" />
+        <img src="Realsee_images/new3.webp" alt="Realsee Galois M2 — 360° LiDAR camera on tripod" />
       </div>
 
       <div class="reveal d1">
@@ -1128,6 +1230,92 @@
 </section>
 
 
+<!-- ═══ 07c — THE GOLDEN THREAD ═══ -->
+<section id="s07c">
+  <div class="container">
+    <span class="lbl">07c — The Golden Thread</span>
+    <h2 class="sh sh-dark sh-mb-sm reveal">Your clients need a Golden Thread.<br />This partnership delivers one.</h2>
+    <p class="sec-intro reveal">The Building Safety Act 2022 requires every Higher-Risk Building to maintain a 'Golden Thread' — a single digital source of truth containing photographic records, as-built drawings, and O&amp;M information in accessible electronic format. Denaploymanuals already handles the O&amp;M layer. See3D provides the spatial evidence that regulators and building safety managers need to see.</p>
+    <div class="gt-grid">
+
+      <div class="reveal">
+        <p class="gt-intro-p">The Act defines what the Golden Thread must include — and much of it is <strong>inherently spatial</strong>. Written descriptions of plant locations, fire compartmentation or service routes are no substitute for a navigable visual record that any stakeholder can open from a browser.</p>
+        <p class="gt-intro-p">For existing HRBs, the Golden Thread must be maintained through any subsequent maintenance or refurbishment. For new buildings, it must be in place <strong>before building work starts</strong>. Denaploymanuals is already embedded in those handover milestones — this partnership adds the layer that makes your package BSA-complete.</p>
+        <div class="gt-act-banner">
+          <div class="gt-act-banner-txt">
+            <strong>BSA 2022, Section 88 &amp; Schedule 1</strong><br />
+            O&amp;M Manuals, photographic records, as-built floor plans, and safety-critical building information are all mandated components of the Golden Thread for Higher-Risk Buildings.
+          </div>
+          <div class="gt-act-banner-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            BSA Compliant
+          </div>
+        </div>
+      </div>
+
+      <div class="gt-checklist reveal d1">
+
+        <div class="gt-item">
+          <div class="gt-item-check">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="gt-item-req">Golden Thread requirement</div>
+            <div class="gt-item-ans">Photographic records of building elements</div>
+            <div class="gt-item-sub">See3D 360° tour — 134 MP per scan point, every space captured at practical completion</div>
+          </div>
+        </div>
+
+        <div class="gt-item">
+          <div class="gt-item-check">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="gt-item-req">Golden Thread requirement</div>
+            <div class="gt-item-ans">Up-to-date floor plans</div>
+            <div class="gt-item-sub">LiDAR-derived floor plans exported at handover — millimetre-accurate, usable in Revit or as standalone drawings</div>
+          </div>
+        </div>
+
+        <div class="gt-item">
+          <div class="gt-item-check">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="gt-item-req">Golden Thread requirement</div>
+            <div class="gt-item-ans">O&amp;M information — maintenance schedules &amp; product details</div>
+            <div class="gt-item-sub">Denaploymanuals O&amp;M manual, live-linked via hotspots — datasheets and service records navigable directly from the tour</div>
+          </div>
+        </div>
+
+        <div class="gt-item">
+          <div class="gt-item-check">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="gt-item-req">Golden Thread requirement</div>
+            <div class="gt-item-ans">Safety-critical building information</div>
+            <div class="gt-item-sub">Fire compartmentation, escape routes, service locations and structural elements — visually navigable and taggable within the tour</div>
+          </div>
+        </div>
+
+        <div class="gt-item">
+          <div class="gt-item-check">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="gt-item-req">Format requirements (BSA Regs 2023)</div>
+            <div class="gt-item-ans">Electronic, accessible, accurate, transferable</div>
+            <div class="gt-item-sub">Browser-based, device-agnostic, no installed software required. Full asset export available for air-gapped or self-hosted environments</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ═══ 08 — SERVICE TIERS ═══ -->
 <section id="s08">
   <div class="container">
@@ -1242,6 +1430,14 @@
     <span class="lbl">09b — Two-Scan Package</span>
     <h2 class="sh sh-dark sh-mb-sm reveal">Before and after — when early engagement allows it.</h2>
     <p class="sec-intro reveal">If Denaploy is brought in at the point of procurement — before works begin — See3D can deliver two scans instead of one: a pre-works condition survey and a practical-completion handover scan. The same site, twelve months apart.</p>
+    <div class="cs-showcase reveal">
+      <img src="conditionsurvey.jpg" alt="Pre-works condition survey scan — building mid-refurbishment captured at 134 MP" />
+      <div class="cs-overlay">
+        <div class="cs-lbl">Real scan — pre-works condition survey</div>
+        <div class="cs-cap">134 MP capture, mid-refurbishment.<br />Every surface, service run and finish — recorded.</div>
+        <div class="cs-sub">Time-stamped. Defensible. Delivered within 3–5 working days of site access.</div>
+      </div>
+    </div>
     <div class="ts-grid">
       <div class="ts-card reveal">
         <div class="ts-tag ts-tag-a">Pre-works</div>
@@ -1251,6 +1447,7 @@
           <li>Protects against end-of-lease dilapidations disputes</li>
           <li>Baseline for damage attribution during the works</li>
           <li>Standalone value for the main contractor</li>
+          <li>Satisfies BSA 2022 photographic records requirement for HRBs under construction (Sch. 1)</li>
         </ul>
       </div>
       <div class="ts-card ts-card-feat reveal d1">

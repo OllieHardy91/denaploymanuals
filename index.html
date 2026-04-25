@@ -893,6 +893,7 @@
 
 <!-- ═══ 01 — COVER ═══ -->
 <section id="s01" class="grain">
+  <canvas class="splat-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;" aria-hidden="true"></canvas>
   <div class="cov-glow-a"></div>
   <div class="cov-glow-b"></div>
   <div class="cov-inner">
@@ -1676,6 +1677,128 @@
     });
   }, { threshold: 0.5 });
   document.querySelectorAll('.stat-v').forEach(el => statIO.observe(el));
+</script>
+
+
+<!-- ═══ HERO SPLAT CANVAS ═══ -->
+<script>
+(function () {
+  const canvas = document.querySelector('.splat-canvas');
+  if (!canvas) return;
+  const hero = canvas.parentElement;
+  const ctx = canvas.getContext('2d');
+  let splats = [], animId;
+  let isVisible = true;
+  let lastFrame = 0;
+  const FPS_INTERVAL = 1000 / 30;
+  const COUNT = window.innerWidth < 768 ? 38 : 75;
+
+  const COLOURS = [
+    [30,  64,  175],
+    [59,  130, 246],
+    [96,  165, 250],
+    [48,  231, 237],
+    [134, 250, 242],
+  ];
+
+  const OP_BUCKETS = 32;
+
+  class Splat {
+    constructor(scatter) { this.init(scatter); }
+    init(scatter) {
+      this.x      = Math.random() * canvas.width;
+      this.y      = scatter ? Math.random() * canvas.height : canvas.height + 80;
+      this.rx     = Math.random() * 55 + 18;
+      this.ry     = this.rx * (Math.random() * 0.5 + 0.3);
+      this.angle  = Math.random() * Math.PI;
+      this.speed  = Math.random() * 0.12 + 0.02;
+      this.driftX = (Math.random() - 0.5) * 0.06;
+      this.op     = Math.random() * 0.15;
+      this.opDir  = 1;
+      this.opSpd  = Math.random() * 0.003 + 0.001;
+      this.opMax  = Math.random() * 0.25 + 0.15;
+      this.rgb    = COLOURS[Math.floor(Math.random() * COLOURS.length)];
+      this._cachedBucket = -1;
+      this._cachedGrad   = null;
+    }
+    update() {
+      this.y -= this.speed;
+      this.x += this.driftX;
+      this.op += this.opDir * this.opSpd;
+      if (this.op >= this.opMax) { this.op = this.opMax; this.opDir = -1; }
+      if (this.op <= 0.01)       { this.op = 0.01;       this.opDir =  1; }
+      if (this.y < -(this.rx * 2)) this.init(false);
+    }
+    draw() {
+      const bucket = Math.round(this.op * OP_BUCKETS);
+      if (bucket !== this._cachedBucket) {
+        this._cachedBucket = bucket;
+        const [r, g, b] = this.rgb;
+        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, this.rx);
+        grad.addColorStop(0,   `rgba(${r},${g},${b},${this.op.toFixed(3)})`);
+        grad.addColorStop(0.4, `rgba(${r},${g},${b},${(this.op * 0.5).toFixed(3)})`);
+        grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+        this._cachedGrad = grad;
+      }
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.scale(1, this.ry / this.rx);
+      ctx.beginPath();
+      ctx.arc(0, 0, this.rx, 0, Math.PI * 2);
+      ctx.fillStyle = this._cachedGrad;
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  let fadeGrad = null;
+  function buildFadeGrad() {
+    fadeGrad = ctx.createLinearGradient(0, canvas.height * 0.55, 0, canvas.height);
+    fadeGrad.addColorStop(0, 'rgba(10,17,40,0)');
+    fadeGrad.addColorStop(1, 'rgba(10,17,40,1)');
+  }
+
+  function init() {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+    buildFadeGrad();
+    splats = Array.from({ length: COUNT }, () => new Splat(true));
+  }
+
+  function animate(timestamp) {
+    animId = requestAnimationFrame(animate);
+    if (!isVisible) return;
+    const elapsed = timestamp - lastFrame;
+    if (elapsed < FPS_INTERVAL) return;
+    lastFrame = timestamp - (elapsed % FPS_INTERVAL);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'screen';
+    splats.forEach(s => { s.update(); s.draw(); });
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = fadeGrad;
+    ctx.fillRect(0, canvas.height * 0.55, canvas.width, canvas.height * 0.45);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelAnimationFrame(animId);
+    else animate(performance.now());
+  });
+
+  const heroIO = new IntersectionObserver(entries => {
+    isVisible = entries[0].isIntersecting;
+  }, { threshold: 0 });
+  heroIO.observe(hero);
+
+  window.addEventListener('resize', () => {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+    buildFadeGrad();
+  });
+
+  init();
+  animate(performance.now());
+})();
 </script>
 
 </body>

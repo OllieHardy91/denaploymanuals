@@ -260,7 +260,7 @@
       gap: 5rem; align-items: start;
     }
     .opp-text-col { }
-    .opp-img-col { position: sticky; top: 6rem; }
+    .opp-img-col { }
     .gt-callout--spaced { margin-top: 2rem; }
     .opp-p {
       font-size: 1.05rem; line-height: 1.82; color: var(--muted);
@@ -270,47 +270,17 @@
     .opp-p strong { color: var(--text); font-weight: 600; }
     .opp-img-wrap {
       border-radius: 20px; overflow: hidden; position: relative;
-      aspect-ratio: 4/3; box-shadow: 0 30px 80px rgba(10,17,40,0.18), 0 8px 24px rgba(10,17,40,0.1);
+      aspect-ratio: 4/3; box-shadow: 0 24px 60px rgba(10,17,40,0.15), 0 6px 18px rgba(10,17,40,0.08);
     }
     .opp-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .opp-img-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(10,17,40,0.88) 0%, rgba(10,17,40,0.35) 45%, transparent 75%);
+      background: linear-gradient(to top, rgba(10,17,40,0.82) 0%, rgba(10,17,40,0.25) 45%, transparent 75%);
       display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 1.75rem 2rem;
+      padding: 1.5rem 1.75rem;
     }
-    .opp-scan-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      background: rgba(74,216,255,0.15); border: 1px solid rgba(74,216,255,0.35);
-      border-radius: 100px; padding: 0.3rem 0.75rem;
-      font-size: 0.67rem; font-weight: 700; letter-spacing: 0.07em;
-      color: var(--cyan); text-transform: uppercase; margin-bottom: 0.75rem;
-      width: fit-content;
-    }
-    .opp-scan-badge span.dot {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--cyan);
-      display: inline-block; animation: blink 1.4s ease-in-out infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .opp-img-caption { font-size: 0.78rem; color: rgba(240,247,255,0.8); line-height: 1.5; }
-    .opp-img-caption strong { color: #fff; }
-    .scan-dot {
-      position: absolute; width: 14px; height: 14px;
-      transform: translate(-50%,-50%);
-    }
-    .scan-dot::before {
-      content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: rgba(74,216,255,0.9);
-      box-shadow: 0 0 0 3px rgba(74,216,255,0.3);
-    }
-    .scan-dot::after {
-      content: ''; position: absolute; inset: -6px; border-radius: 50%;
-      border: 1.5px solid rgba(74,216,255,0.5);
-      animation: pulse-ring 2.2s ease-out infinite;
-    }
-    .scan-dot:nth-child(2)::after { animation-delay: 0.7s; }
-    .scan-dot:nth-child(3)::after { animation-delay: 1.4s; }
-    @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.8);opacity:0} }
+    .opp-img-caption { font-size: 0.82rem; color: #fff; line-height: 1.55; font-weight: 500; }
+    .opp-img-caption strong { color: #fff; font-weight: 700; }
     .opp-stats {
       display: grid; grid-template-columns: repeat(3,1fr);
       gap: 2rem; margin-top: 4rem;
@@ -993,10 +963,12 @@
 
     @media (max-width:860px) {
       .d-grid,.tco-grid,.hw-grid,.tiers-grid,.ref-grid,.host-grid,.act-grid,
-      .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid { grid-template-columns:1fr; }
+      .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid,.opp-grid { grid-template-columns:1fr; gap:2.5rem; }
       .gt-act-banner { flex-direction:column; gap:1rem; }
-      .gt-thread-layer { display:none; }
-      .gt-checklist { margin-top:0; }
+      .gt-checklist { margin-top:0; gap:2.2rem; }
+      .gt-thread-path { stroke-width:2.5; }
+      .gt-thread-highlight { stroke-width:1; }
+      .gt-thread-head { width:20px; height:20px; bottom:-0.6rem; }
       .pay-grid { gap:1rem; }
       .opp-stats { grid-template-columns:1fr 1fr; }
       .nav-links { display:none; }
@@ -1177,12 +1149,8 @@
         <div class="opp-img-wrap">
           <img src="conditionsurvey.jpg" alt="360° mid-works scan captured during construction handover — mechanical services level" loading="lazy" />
           <div class="opp-img-overlay">
-            <div class="opp-scan-badge"><span class="dot"></span>Live scan capture</div>
             <p class="opp-img-caption"><strong>Mid-works condition survey</strong> — mechanical services level documented at handover. Every duct run, service route and access point navigable from any device.</p>
           </div>
-          <div class="scan-dot" style="top:38%;left:44%;"></div>
-          <div class="scan-dot" style="top:55%;left:70%;"></div>
-          <div class="scan-dot" style="top:28%;left:22%;"></div>
         </div>
       </div>
     </div>
@@ -1981,6 +1949,14 @@
     const checks = [...sec.querySelectorAll('.gt-item-check')];
     if (!path) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* On narrow viewports the wave path's hooks fall in the wrong places
+       (boxes are taller, so designed gap-positions no longer match).
+       Swap to a simple straight centered line instead. */
+    if (window.matchMedia('(max-width: 520px)').matches) {
+      const straight = 'M 50 0 L 50 985';
+      path.setAttribute('d', straight);
+      if (highlight) highlight.setAttribute('d', straight);
+    }
     const len = path.getTotalLength();
     [path, highlight].forEach(p => {
       if (!p) return;

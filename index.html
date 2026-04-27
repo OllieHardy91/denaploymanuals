@@ -1023,10 +1023,66 @@
     .sec-hdr-lft  { margin-bottom: 3.5rem; }
     .sec-hdr-lft-sm { margin-bottom: 3rem; }
 
+    /* ─────────────────────────────────────
+       MOBILE OPTIMISATION (≤520px)
+    ───────────────────────────────────── */
     @media (max-width:520px) {
       .opp-stats { grid-template-columns:1fr; }
       .cov-h1 { font-size:2.2rem; }
+      /* Tighter container — claw back ~24px of horizontal real estate */
+      .container, .opp-wrap { padding:0 1.25rem; }
+      /* Halve the vertical section padding everywhere */
+      #s02,#s03,#s04,#s04b,#s05,#s07,#s07b,#s07c,#s08,#s09,#s09b,#s10,#s11,#s11b,#s12 { padding-top:3.5rem; padding-bottom:3.5rem; }
+      /* Preserve the tightened gaps between adjacent same-bg sections */
+      #s04b { padding-bottom:1.5rem; }
+      #s05  { padding-top:1.5rem; }
+      #s09b { padding-bottom:1.5rem; }
+      #s10  { padding-top:1.5rem; }
+      /* Cap big display headings */
+      .sh { font-size:1.65rem; line-height:1.18; }
+      .opp-h2 { font-size:1.65rem; line-height:1.18; }
+      .own-h2 { font-size:1.65rem; line-height:1.18; }
+      .hw-h2  { font-size:1.65rem; line-height:1.18; }
+      .cov-h1 { font-size:2rem; }
+      /* TCO comparison columns — already 1fr from 860px breakpoint, just tighten padding */
+      .tco-light, .tco-dark { padding:1.6rem 1.4rem; }
+      .tco-bn { font-size:1.5rem; }
+      .tco-tv { font-size:1.4rem; }
+      /* Hero card images — cap so they don't dominate */
+      .hw-img { max-height:42vh; }
+      .cs-showcase { max-height:36vh; }
+      /* Pricing rows — let "value" cell wrap below the label on narrow screens */
+      .price-row { flex-wrap:wrap; gap:0.3rem; padding:0.7rem 0; }
+      .pr-l { font-size:0.82rem; }
+      .price-card { padding:2rem 1.4rem; }
+      .price-big { font-size:2.8rem; }
+      .price-tag { font-size:0.55rem; padding:0.35rem 0.7rem; }
+      /* Live Tour overlay — compact button label and tighten title wrap */
+      .tour-overlay { padding:4.25rem 1.25rem 1.25rem; }
+      .tour-ttl { font-size:0.95rem; }
+      .tour-btn { padding:0.42rem 0.7rem; font-size:0.7rem; white-space:nowrap; }
+      .tour-btn .tour-btn-long { display:none; }
+      .tour-btn .tour-btn-short { display:inline; }
+      .tour-wrap { height:auto; min-height:62vh; }
+      /* BSA banner stacks cleanly */
+      .gt-act-banner { padding:1.1rem 1.2rem; }
+      .gt-act-banner-badge { width:100%; justify-content:center; }
+      /* Hotspot steps tighten */
+      .hot-step { padding:1.1rem 1.2rem; }
+      /* Service tiers, payment cards already 1fr — just inner padding tweak */
+      .tier { padding:1.7rem 1.4rem; }
+      /* Hosting cards padding */
+      .h-card { padding:1.6rem 1.4rem; }
+      /* Next-steps cards */
+      .ns-card { padding:1.6rem 1.4rem; }
+      /* Timeline numbers wrap fix */
+      .t-step { gap:0.85rem; }
+      .t-dsc { max-width:none; }
+      /* Section eyebrows tighter spacing */
+      .lbl { margin-bottom:0.6rem; }
     }
+    /* Default: show long button label, hide short */
+    .tour-btn-short { display:none; }
   </style>
 </head>
 <body>
@@ -1310,7 +1366,8 @@
       <div class="tour-ttl">White Heron — Live Tour</div>
     </div>
     <a href="https://tours.see3d.ai/WhiteHeron/" target="_blank" rel="noopener" class="tour-btn">
-      Open full screen
+      <span class="tour-btn-long">Open full screen</span>
+      <span class="tour-btn-short">Fullscreen</span>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </a>
   </div>

@@ -397,7 +397,7 @@
     /* ─────────────────────────────────────
        04b OWNERSHIP & PLATFORM
     ───────────────────────────────────── */
-    #s04b { padding: 7rem 0; background: var(--pale); }
+    #s04b { padding: 7rem 0 3rem; background: var(--pale); }
     .own-grid { display:grid; grid-template-columns:1fr 1fr; gap:3.5rem; }
     .own-col { display:flex; flex-direction:column; gap:1.25rem; }
     .own-p { font-size:0.97rem; line-height:1.78; color:var(--muted); }
@@ -410,7 +410,7 @@
     /* ─────────────────────────────────────
        05 HARDWARE
     ───────────────────────────────────── */
-    #s05 { padding: 7rem 0; background: var(--pale); }
+    #s05 { padding: 3rem 0 7rem; background: var(--pale); }
     .hw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: center; }
     .hw-img {
       border-radius: 24px; overflow: hidden; box-shadow: none;
@@ -613,11 +613,25 @@
     .s09-bg { position:absolute; inset:0; background:radial-gradient(ellipse 50% 60% at 50% 0%,rgba(59,130,246,0.14) 0%,transparent 70%); pointer-events:none; }
     .s09-rel { position:relative; z-index:3; }
     .price-card {
+      position:relative;
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);
       border-radius:24px; padding:3rem; max-width:620px; margin:3rem auto 0;
     }
+    .price-tag {
+      position:absolute; top:-0.85rem; left:50%; transform:translateX(-50%);
+      display:inline-flex; align-items:center; gap:0.4rem;
+      background:linear-gradient(135deg, #1a2a52, #0e1c3d);
+      border:1px solid rgba(245,180,90,0.45);
+      border-radius:999px; padding:0.42rem 0.95rem;
+      font-size:0.62rem; font-weight:700; letter-spacing:0.16em;
+      text-transform:uppercase; color:rgba(245,180,90,0.95);
+      white-space:nowrap;
+    }
+    .price-from { font-size:0.95rem; font-weight:600; color:rgba(255,255,255,0.55); letter-spacing:0.03em; margin-bottom:0.25rem; text-transform:uppercase; }
     .price-big { font-size:4.2rem; font-weight:800; letter-spacing:-0.04em; color:#fff; line-height:1; }
     .price-unit { font-size:0.96rem; color:rgba(255,255,255,0.4); margin-bottom:2.25rem; margin-top:0.18rem; }
+    .price-lead { font-size:0.95rem; color:rgba(255,255,255,0.7); line-height:1.7; max-width:620px; margin:1.4rem auto 0; text-align:center; }
+    .price-lead strong { color:#fff; font-weight:600; }
     .price-row { display:flex; justify-content:space-between; align-items:center; padding:0.86rem 0; border-bottom:1px solid rgba(255,255,255,0.06); }
     .price-row:last-of-type { border-bottom:none; }
     .pr-l { font-size:0.85rem; color:rgba(255,255,255,0.48); }
@@ -641,7 +655,7 @@
     /* ─────────────────────────────────────
        09b TWO-SCAN PACKAGE
     ───────────────────────────────────── */
-    #s09b { padding:7rem 0; background:#fff; }
+    #s09b { padding:7rem 0 3rem; background:#fff; }
     .ts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.75rem; margin-top:3rem; }
     .ts-card {
       background:#F8F9FC; border:1px solid var(--border); border-radius:20px;
@@ -698,7 +712,7 @@
     /* ─────────────────────────────────────
        10 REFERRAL
     ───────────────────────────────────── */
-    #s10 { padding:7rem 0; background:#fff; }
+    #s10 { padding:3rem 0 7rem; background:#fff; }
     .ref-intro { font-size:0.92rem; color:var(--muted); line-height:1.72; max-width:600px; margin-top:0.7rem; }
     .ref-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:3rem; }
     .ref-grid-single { display:flex; justify-content:center; margin-top:3rem; }
@@ -745,6 +759,13 @@
     .ha-up  { text-align:center; flex-shrink:0; padding-left:2rem; }
     .ha-upv { font-size:2.6rem; font-weight:800; letter-spacing:-0.03em; color:var(--cyan); line-height:1; }
     .ha-upl { font-size:0.66rem; color:rgba(255,255,255,0.34); text-transform:uppercase; letter-spacing:0.08em; margin-top:0.22rem; }
+    .ha-up-pills { display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end; padding-left:2rem; flex-shrink:0; }
+    .ha-pill {
+      display:inline-block; font-size:0.7rem; font-weight:600; letter-spacing:0.06em;
+      color:rgba(74,216,255,0.92); background:rgba(74,216,255,0.08);
+      border:1px solid rgba(74,216,255,0.22); border-radius:999px;
+      padding:0.42rem 0.85rem; white-space:nowrap;
+    }
 
     /* ─────────────────────────────────────
        11b PAYMENT TERMS
@@ -987,6 +1008,7 @@
       .t-node { flex-shrink:0; margin-bottom:0; }
       .host-assurance { flex-direction:column; gap:1.5rem; text-align:center; }
       .ha-up { padding-left:0; }
+      .ha-up-pills { padding-left:0; align-items:center; flex-direction:row; flex-wrap:wrap; justify-content:center; }
       .ts-bonus,.proc-note { flex-direction:column; gap:0.9rem; }
       .own-grid { gap:2rem; }
     }
@@ -1599,9 +1621,12 @@
   <div class="container s09-rel">
     <div class="sec-hdr">
       <span class="lbl lbl-light">09 — Pricing</span>
-      <h2 class="sh sh-light">Simple, transparent, per-project.</h2>
+      <h2 class="sh sh-light">Indicative pricing — scoped per project.</h2>
     </div>
+    <p class="price-lead reveal">The figures below are a <strong>guideline, not a quote.</strong> Final pricing is set per project — adjusted for building size, floor count, scan complexity, access constraints and travel. Use them as a starting reference for the conversation.</p>
     <div class="price-card reveal">
+      <div class="price-tag">Indicative — worked example</div>
+      <div class="price-from">From</div>
       <div class="price-big">£750</div>
       <div class="price-unit">per floor level — all scan points included (subject to cap)</div>
       <div class="price-row"><span class="pr-l">Scan points per floor</span><span class="pr-v pr-v-c">Included up to agreed cap</span></div>
@@ -1614,14 +1639,14 @@
     </div>
 
     <div class="price-example reveal">
-      <div class="pex-lbl">Worked example — 5-storey building</div>
+      <div class="pex-lbl">Worked example — 5-storey building (illustrative only)</div>
       <div class="pex-grid">
-        <div class="pex-row"><span class="pex-k">Tour fee (5 × £750)</span><span class="pex-v">£3,750</span></div>
-        <div class="pex-row"><span class="pex-k">Denaploy referral (Year 1, 20%)</span><span class="pex-v pex-v-c">£750 &nbsp;<em>(£150 per floor)</em></span></div>
+        <div class="pex-row"><span class="pex-k">Tour fee (5 × £750)</span><span class="pex-v">~ £3,750</span></div>
+        <div class="pex-row"><span class="pex-k">Denaploy referral (Year 1, 20%)</span><span class="pex-v pex-v-c">~ £750 &nbsp;<em>(~ £150 per floor)</em></span></div>
       </div>
     </div>
 
-    <p class="price-note">Rates are indicative and subject to change depending on project complexity, number of scans required per floor, and overall building size. A cap applies on maximum scans per floor — larger or more complex spaces are scoped and priced individually. Referral fee returned to Denaploy per agreed structure.</p>
+    <p class="price-note">Numbers above are illustrative — every project is scoped and priced individually. Final figures move up or down depending on building size, floor count, scan complexity, access constraints, travel and any agreed package discounts. A cap applies on maximum scans per floor; larger or more complex spaces are quoted bespoke. Referral fee returned to Denaploy per agreed structure.</p>
   </div>
 </section>
 
@@ -1715,37 +1740,38 @@
 
       <div class="h-card reveal">
         <div class="h-icon">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <div class="h-ttl">See3D Infrastructure</div>
-        <div class="h-bdy">Tours are hosted on See3D's own servers — not a third-party platform that could change pricing or be discontinued. The tour URL is permanent and always resolves correctly.</div>
+        <div class="h-ttl">Free hosting — always</div>
+        <div class="h-bdy">See3D never charges for hosting. The tour link is included in the project price and stays live for as long as the client needs it — no annual fees, no tiered plans, no retrospective billing. This is the part of the offer Matterport and other platforms can't match.</div>
       </div>
 
       <div class="h-card reveal d1">
         <div class="h-icon">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-        <div class="h-ttl">Year 3 and Beyond</div>
-        <div class="h-bdy">Hosting is included for the active project lifecycle. After year 2, clients move to a low-cost annual arrangement or download all assets and self-host. Nothing is locked in.</div>
+        <div class="h-ttl">Or take the files — host it yourself</div>
+        <div class="h-bdy">Prefer your own infrastructure? See3D delivers the full export — raw panoramic images, LiDAR point cloud, floor plans and a self-contained tour package — for the client (or Denaploy) to host on whichever environment suits. Same deliverable, your servers.</div>
       </div>
 
       <div class="h-card reveal d2">
         <div class="h-icon">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-        <div class="h-ttl">Data Portability</div>
-        <div class="h-bdy">Raw panoramic images and point cloud data are delivered as standard. Your clients own their data outright — all source files remain in their possession regardless of hosting arrangement.</div>
+        <div class="h-ttl">Data ownership, either way</div>
+        <div class="h-bdy">All source files belong to the client outright — regardless of which hosting route is chosen. Switch between hosted-by-See3D and self-hosted at any point. No lock-in, no proprietary platform dependency, no need to renegotiate.</div>
       </div>
 
     </div>
     <div class="host-assurance reveal">
       <div class="ha-txt">
         <div class="ha-ttl">The tour outlasts the project team.</div>
-        <div class="ha-bdy">An O&amp;M manual needs to be useful in year 5 and year 10, not just at handover. See3D tours are browser-based, device-agnostic and require no installed software. A facilities manager in 2031 can open the same link and navigate the building exactly as it was scanned on handover day.</div>
+        <div class="ha-bdy">An O&amp;M manual needs to be useful in year 5 and year 10, not just at handover. See3D tours are browser-based, device-agnostic and require no installed software. A facilities manager in 2031 can open the same link — or run the offline package on their own infrastructure — and navigate the building exactly as it was scanned on handover day.</div>
       </div>
-      <div class="ha-up">
-        <div class="ha-upv">99.9%</div>
-        <div class="ha-upl">Target uptime SLA</div>
+      <div class="ha-up ha-up-pills">
+        <span class="ha-pill">Browser-based</span>
+        <span class="ha-pill">Device-agnostic</span>
+        <span class="ha-pill">No plugins</span>
       </div>
     </div>
   </div>

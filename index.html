@@ -249,19 +249,71 @@
        02 OPPORTUNITY
     ───────────────────────────────────── */
     #s02 { padding: 7rem 0; background: var(--pale); }
-    .opp-wrap { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
+    .opp-wrap { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
     .opp-h2 {
       font-size: clamp(1.85rem, 3vw, 2.65rem);
       font-weight: 700; letter-spacing: -0.027em;
-      line-height: 1.12; color: var(--navy); margin-bottom: 1.5rem;
+      line-height: 1.12; color: var(--navy); margin-bottom: 2.5rem;
     }
+    .opp-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: start;
+    }
+    .opp-text-col { }
+    .opp-img-col { position: sticky; top: 6rem; }
+    .gt-callout--spaced { margin-top: 2rem; }
     .opp-p {
       font-size: 1.05rem; line-height: 1.82; color: var(--muted);
+      margin-bottom: 1.4rem;
     }
+    .opp-p:last-of-type { margin-bottom: 0; }
     .opp-p strong { color: var(--text); font-weight: 600; }
+    .opp-img-wrap {
+      border-radius: 20px; overflow: hidden; position: relative;
+      aspect-ratio: 4/3; box-shadow: 0 30px 80px rgba(10,17,40,0.18), 0 8px 24px rgba(10,17,40,0.1);
+    }
+    .opp-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .opp-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,17,40,0.88) 0%, rgba(10,17,40,0.35) 45%, transparent 75%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 1.75rem 2rem;
+    }
+    .opp-scan-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(74,216,255,0.15); border: 1px solid rgba(74,216,255,0.35);
+      border-radius: 100px; padding: 0.3rem 0.75rem;
+      font-size: 0.67rem; font-weight: 700; letter-spacing: 0.07em;
+      color: var(--cyan); text-transform: uppercase; margin-bottom: 0.75rem;
+      width: fit-content;
+    }
+    .opp-scan-badge span.dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--cyan);
+      display: inline-block; animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .opp-img-caption { font-size: 0.78rem; color: rgba(240,247,255,0.8); line-height: 1.5; }
+    .opp-img-caption strong { color: #fff; }
+    .scan-dot {
+      position: absolute; width: 14px; height: 14px;
+      transform: translate(-50%,-50%);
+    }
+    .scan-dot::before {
+      content: ''; position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(74,216,255,0.9);
+      box-shadow: 0 0 0 3px rgba(74,216,255,0.3);
+    }
+    .scan-dot::after {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 1.5px solid rgba(74,216,255,0.5);
+      animation: pulse-ring 2.2s ease-out infinite;
+    }
+    .scan-dot:nth-child(2)::after { animation-delay: 0.7s; }
+    .scan-dot:nth-child(3)::after { animation-delay: 1.4s; }
+    @keyframes pulse-ring { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.8);opacity:0} }
     .opp-stats {
       display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 2rem; margin-top: 3rem;
+      gap: 2rem; margin-top: 4rem;
       padding-top: 2.5rem; border-top: 1px solid var(--border);
     }
     .stat-v { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--cyan); line-height: 1; margin-bottom: 0.4rem; }
@@ -491,6 +543,20 @@
     .ha-p { font-size:0.88rem; color:rgba(255,255,255,0.68); line-height:1.72; }
     .ha-p strong { color:#fff; font-weight:600; }
     .ha-p-sub { margin-top:0.9rem; color:rgba(255,255,255,0.5); font-size:0.82rem; }
+    .hs-talk {
+      margin-top:0.7rem; padding:0.7rem 0.85rem;
+      background:rgba(245,180,90,0.07);
+      border:1px solid rgba(245,180,90,0.22);
+      border-left:2px solid rgba(245,180,90,0.55);
+      border-radius:8px;
+      font-size:0.76rem; color:rgba(255,255,255,0.66); line-height:1.6;
+    }
+    .hs-talk-lbl {
+      display:inline-block; font-size:0.58rem; font-weight:700;
+      letter-spacing:0.14em; text-transform:uppercase;
+      color:rgba(245,180,90,0.95); margin-right:0.5rem;
+    }
+    .hs-talk strong { color:#fff; font-weight:600; }
 
     /* ─────────────────────────────────────
        08 TIERS
@@ -755,6 +821,7 @@
       border-radius: 20px; overflow: hidden; position: relative;
       height: 340px;
     }
+    .cs-showcase--gap { margin-top: 2rem; }
     .cs-showcase img {
       width: 100%; height: 100%; object-fit: cover; display: block;
     }
@@ -763,6 +830,9 @@
       background: linear-gradient(to right, rgba(10,17,40,0.76) 0%, rgba(10,17,40,0.3) 52%, transparent 75%);
       display: flex; flex-direction: column; justify-content: flex-end;
       padding: 2rem 2.5rem;
+    }
+    .cs-overlay--bottom {
+      background: linear-gradient(to top, rgba(10,17,40,0.92) 0%, rgba(10,17,40,0.55) 38%, transparent 72%);
     }
     .cs-lbl { font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); margin-bottom:0.5rem; }
     .cs-cap { font-size:1.15rem; font-weight:700; color:#fff; letter-spacing:-0.02em; line-height:1.28; }
@@ -794,9 +864,84 @@
     /* ─────────────────────────────────────
        07c GOLDEN THREAD
     ───────────────────────────────────── */
-    #s07c { padding:7rem 0; background:#fff; }
-    .gt-grid { display:grid; grid-template-columns:1fr 1.15fr; gap:4rem; align-items:flex-start; margin-top:3rem; }
+    #s07c { padding:7rem 0; background:#fff; position:relative; overflow:hidden; }
+    #s07c .container { position:relative; }
+    .gt-grid { display:grid; grid-template-columns:1.15fr 1fr; gap:4rem; align-items:flex-start; margin-top:1.5rem; }
+    #s07c .sh { margin-bottom:0; font-size:clamp(1.45rem, 1.85vw, 1.75rem); line-height:1.15; }
+    #s07c .gt-grid .sec-intro { margin-top:0.85rem; margin-bottom:2rem; max-width:none; }
     .gt-intro-p { font-size:0.97rem; line-height:1.8; color:var(--muted); margin-bottom:1.25rem; }
+    .gt-checklist-wrap { position:relative; }
+    .gt-checklist { position:relative; z-index:2; margin-top:0; }
+
+    /* Golden Thread overlay — thin winding gold line centered on the box column,
+       sits BEHIND boxes so it doesn't compete with text legibility */
+    .gt-thread-layer {
+      position:absolute;
+      top:-4.5rem; bottom:-3rem;
+      left:0; right:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    .gt-item { position:relative; z-index:1; transition:background 0.5s ease, border-color 0.5s ease; }
+    .gt-thread-svg {
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      overflow:visible;
+    }
+    .gt-thread-path {
+      fill:none;
+      stroke:url(#gtThreadGrad);
+      stroke-width:1.4;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      stroke-dasharray:var(--gt-len, 1400);
+      stroke-dashoffset:var(--gt-len, 1400);
+      filter:drop-shadow(0 0.5px 0.5px rgba(140, 90, 10, 0.35));
+    }
+    .gt-thread-highlight {
+      fill:none;
+      stroke:#FFF4C9;
+      stroke-width:0.5;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      stroke-dasharray:var(--gt-len, 1400);
+      stroke-dashoffset:var(--gt-len, 1400);
+      opacity:0.75;
+    }
+    .gt-thread-highlight.is-drawn {
+      animation: gtDraw 7s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+    }
+    .gt-thread-path.is-drawn {
+      animation: gtDraw 7s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+    }
+    @keyframes gtDraw { to { stroke-dashoffset:0; } }
+
+    .gt-thread-head {
+      position:absolute;
+      left:50%; bottom:-0.4rem;
+      width:22px; height:22px;
+      border:1.8px solid #B8903C;
+      border-radius:50%;
+      background:#fff;
+      transform:translate(-50%, 0) scale(0.3);
+      opacity:0;
+      transition:opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .gt-thread-head.is-on { opacity:1; transform:translate(-50%, 0) scale(1); }
+    /* Check icons turn cyan → green as the thread reaches each box */
+    .gt-item-check {
+      transition:background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+    }
+    .gt-item-check.gt-check-green {
+      background:rgba(34,197,94,0.12);
+      border-color:rgba(34,197,94,0.55);
+      color:#16a34a;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .gt-thread-path, .gt-thread-highlight { animation:none; stroke-dashoffset:0; }
+      .gt-thread-head { opacity:1; transform:translate(-50%, 0) scale(1); transition:none; }
+      .gt-item-check { background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.55); color:#16a34a; transition:none; }
+    }
     .gt-intro-p strong { color:var(--text); font-weight:600; }
     .gt-act-banner {
       margin-top:1.75rem; padding:1.3rem 1.6rem;
@@ -812,7 +957,7 @@
       border-radius:8px; padding:0.48rem 0.85rem;
       font-size:0.73rem; font-weight:700; color:var(--cyan); white-space:nowrap;
     }
-    .gt-checklist { display:flex; flex-direction:column; gap:0.75rem; }
+    .gt-checklist { display:flex; flex-direction:column; gap:1.65rem; }
     .gt-item {
       display:flex; gap:1rem; align-items:flex-start;
       background:#F8F9FC; border:1px solid var(--border);
@@ -829,6 +974,8 @@
       .d-grid,.tco-grid,.hw-grid,.tiers-grid,.ref-grid,.host-grid,.act-grid,
       .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid { grid-template-columns:1fr; }
       .gt-act-banner { flex-direction:column; gap:1rem; }
+      .gt-thread-layer { display:none; }
+      .gt-checklist { margin-top:0; }
       .pay-grid { gap:1rem; }
       .opp-stats { grid-template-columns:1fr 1fr; }
       .nav-links { display:none; }
@@ -925,22 +1072,43 @@
   <div class="opp-wrap">
     <span class="lbl">02 — The Opportunity</span>
     <h2 class="opp-h2 reveal">O&amp;M documentation is overdue a spatial upgrade.</h2>
-    <p class="opp-p reveal">
-      Today, an operations &amp; maintenance manual is all too often a PDF or a folder of flat drawings stored in the cloud. It describes a building in words — but the people who will operate and maintain that building work in three dimensions.<br /><br />
-      <strong>A virtual tour changes that entirely.</strong> Every plant room, roof void and services corridor becomes navigable from any browser or mobile device. Assets are tagged directly in the space. Engineers can locate and identify equipment before they set foot on site. Contractors and design teams share the same spatial context — without leaving the office.<br /><br />
-      For Denaploy, this is a natural extension of your existing handover package. You already own the client relationship and the documentation brief. See3D provides the spatial layer: a high-resolution, navigable record of the building that ships alongside the O&amp;M manual as a single, unified deliverable — giving your clients something no standard documentation service currently provides at scale.<br /><br />
-      Virtual tours have been technically possible for years, but O&amp;M providers have largely avoided them due to the prohibitive and ongoing costs of platforms like Matterport. See3D removes that barrier entirely: a predictable one-time fee, no subscriptions, and a permanent digital asset the client owns outright.<br /><br />
-      The timing matters too. The <strong>Building Safety Act 2022</strong> introduced a mandatory 'Golden Thread' of building information for Higher-Risk Buildings — requiring photographic records, as-built floor plans, and O&amp;M data to be maintained in accessible digital format throughout a building's lifecycle. Denaploymanuals already delivers the O&amp;M layer. A See3D scan adds the spatial evidence that makes a handover package Golden Thread-ready.
-    </p>
-    <div class="gt-callout reveal">
-      <div class="gtc-icon">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+
+    <div class="opp-grid">
+      <div class="opp-text-col">
+        <p class="opp-p reveal">
+          Today, an O&amp;M manual is all too often a PDF or a folder of flat drawings stored in the cloud. It describes a building in words — but the people who operate and maintain it work in three dimensions.
+        </p>
+        <p class="opp-p reveal">
+          <strong>A virtual tour changes that entirely.</strong> Every plant room, roof void and services corridor becomes navigable from any browser or mobile device. Assets are tagged directly in the space. Engineers locate and identify equipment before they set foot on site. Contractors share the same spatial context — without leaving the office.
+        </p>
+        <p class="opp-p reveal">
+          For Denaploy, this is a natural extension of your existing handover package. You already own the client relationship and the documentation brief. See3D provides the spatial layer: a high-resolution, navigable record that ships alongside the O&amp;M manual as a single unified deliverable — giving your clients something no standard documentation service currently provides at scale.
+        </p>
+        <div class="gt-callout gt-callout--spaced reveal">
+          <div class="gtc-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="gtc-title">Building Safety Act 2022 — Golden Thread (Section 88)</div>
+            <p class="gtc-body">Higher-Risk Buildings now require a digital 'single source of truth' — photographic records, as-built drawings, O&amp;M information, and safety-critical building data. <strong>This partnership delivers all of it.</strong> Denaploymanuals provides the O&amp;M manual. See3D provides the navigable spatial record your clients are legally required to maintain.</p>
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="gtc-title">Building Safety Act 2022 — Golden Thread (Section 88)</div>
-        <p class="gtc-body">Higher-Risk Buildings now require a digital 'single source of truth' — including photographic records, as-built drawings, O&amp;M information, and safety-critical building data. <strong>This partnership delivers all of it.</strong> Denaploymanuals provides the O&amp;M manual. See3D provides the navigable spatial record your clients are legally required to maintain.</p>
+
+      <div class="opp-img-col reveal d1">
+        <div class="opp-img-wrap">
+          <img src="conditionsurvey.jpg" alt="360° mid-works scan captured during construction handover — mechanical services level" loading="lazy" />
+          <div class="opp-img-overlay">
+            <div class="opp-scan-badge"><span class="dot"></span>Live scan capture</div>
+            <p class="opp-img-caption"><strong>Mid-works condition survey</strong> — mechanical services level documented at handover. Every duct run, service route and access point navigable from any device.</p>
+          </div>
+          <div class="scan-dot" style="top:38%;left:44%;"></div>
+          <div class="scan-dot" style="top:55%;left:70%;"></div>
+          <div class="scan-dot" style="top:28%;left:22%;"></div>
+        </div>
       </div>
     </div>
+
     <div class="opp-stats">
       <div class="reveal">
         <div class="stat-v">134 MP</div>
@@ -1196,7 +1364,11 @@
           <div class="hs-num">01</div>
           <div>
             <div class="hs-ttl">See3D delivers the tour shell</div>
-            <div class="hs-dsc">Hotspots are placed at every asset location — plant, valves, DBs, AHUs, fire panels. Each hotspot is an empty container waiting for data.</div>
+            <div class="hs-dsc">Once the space is scanned, hotspot shells are placed at every critical asset location — plant, valves, DBs, AHUs, fire panels — under guidance from whoever holds the asset register. Each shell is an empty container waiting for data.</div>
+            <div class="hs-talk">
+              <span class="hs-talk-lbl">Open point — to confirm with Denaploy</span>
+              Who directs hotspot placement after scanning — <strong>Denaploy, the main contractor, or the end client?</strong> Likely route is a chargeable scoping session (on site or via Teams) where See3D walks the model with the asset-register holder to mark every critical location before the tour is finalised. To be priced and scoped per project until a standard is set.
+            </div>
           </div>
         </div>
         <div class="hot-step reveal d1">
@@ -1235,11 +1407,11 @@
 <section id="s07c">
   <div class="container">
     <span class="lbl">07c — The Golden Thread</span>
-    <h2 class="sh sh-dark sh-mb-sm reveal">Your clients need a Golden Thread.<br />This partnership delivers one.</h2>
-    <p class="sec-intro reveal">The Building Safety Act 2022 requires every Higher-Risk Building to maintain a 'Golden Thread' — a single digital source of truth containing photographic records, as-built drawings, and O&amp;M information in accessible electronic format. Denaploymanuals already handles the O&amp;M layer. See3D provides the spatial evidence that regulators and building safety managers need to see.</p>
     <div class="gt-grid">
 
       <div class="reveal">
+        <h2 class="sh sh-dark sh-mb-sm">Your clients need a Golden Thread.<br />This partnership delivers one.</h2>
+        <p class="sec-intro">The Building Safety Act 2022 requires every Higher-Risk Building to maintain a 'Golden Thread' — a single digital source of truth containing photographic records, as-built drawings, and O&amp;M information in accessible electronic format. Denaploymanuals already handles the O&amp;M layer. See3D provides the spatial evidence that regulators and building safety managers need to see.</p>
         <p class="gt-intro-p">The Act defines what the Golden Thread must include — and much of it is <strong>inherently spatial</strong>. Written descriptions of plant locations, fire compartmentation or service routes are no substitute for a navigable visual record that any stakeholder can open from a browser.</p>
         <p class="gt-intro-p">For existing HRBs, the Golden Thread must be maintained through any subsequent maintenance or refurbishment. For new buildings, it must be in place <strong>before building work starts</strong>. Denaploymanuals is already embedded in those handover milestones — this partnership adds the layer that makes your package BSA-complete.</p>
         <div class="gt-act-banner">
@@ -1255,6 +1427,35 @@
       </div>
 
       <div class="gt-checklist reveal d1">
+
+        <div class="gt-thread-layer" aria-hidden="true">
+          <svg class="gt-thread-svg" viewBox="0 0 100 1000" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="gtThreadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%"   stop-color="#F8D26E"/>
+                <stop offset="22%"  stop-color="#E0A82E"/>
+                <stop offset="50%"  stop-color="#FFE082"/>
+                <stop offset="78%"  stop-color="#C68A14"/>
+                <stop offset="100%" stop-color="#8E6210"/>
+              </linearGradient>
+            </defs>
+            <path class="gt-thread-path"
+                  d="M 50 0
+                     Q 25 233 50 315
+                     T 50 493
+                     T 50 681
+                     T 50 867
+                     Q 50 925 50 985"/>
+            <path class="gt-thread-highlight"
+                  d="M 50 0
+                     Q 25 233 50 315
+                     T 50 493
+                     T 50 681
+                     T 50 867
+                     Q 50 925 50 985"/>
+          </svg>
+          <div class="gt-thread-head"></div>
+        </div>
 
         <div class="gt-item">
           <div class="gt-item-check">
@@ -1432,7 +1633,7 @@
     <h2 class="sh sh-dark sh-mb-sm reveal">Before and after — when early engagement allows it.</h2>
     <p class="sec-intro reveal">If Denaploy is brought in at the point of procurement — before works begin — See3D can deliver two scans instead of one: a pre-works condition survey and a practical-completion handover scan. The same site, twelve months apart.</p>
     <div class="cs-showcase reveal">
-      <img src="conditionsurvey.jpg" alt="Pre-works condition survey scan — building mid-refurbishment captured at 134 MP" />
+      <img src="conditionsurvey2.jpg" alt="Pre-works condition survey scan — building mid-refurbishment captured at 134 MP" />
       <div class="cs-overlay">
         <div class="cs-lbl">Real scan — pre-works condition survey</div>
         <div class="cs-cap">134 MP capture, mid-refurbishment.<br />Every surface, service run and finish — recorded.</div>
@@ -1460,6 +1661,14 @@
           <li>Hotspots live-linked to the asset data sheet</li>
           <li>Permanent digital twin for the end client</li>
         </ul>
+      </div>
+    </div>
+    <div class="cs-showcase cs-showcase--gap reveal">
+      <img src="conditionsurveybrompton.jpg" alt="Practical completion scan — finished floor, all surfaces and services recorded at handover" loading="lazy" />
+      <div class="cs-overlay">
+        <div class="cs-lbl">Real scan — practical completion handover</div>
+        <div class="cs-cap">134 MP capture, at handover.<br />Every finish, fixture and service — recorded.</div>
+        <div class="cs-sub">Permanent, navigable, client-owned.</div>
       </div>
     </div>
     <div class="ts-bonus reveal">
@@ -1677,6 +1886,62 @@
     });
   }, { threshold: 0.5 });
   document.querySelectorAll('.stat-v').forEach(el => statIO.observe(el));
+
+  /* Golden Thread — one-shot draw triggered when section enters viewport.
+     As the line passes each box's check icon, that icon flips cyan → green. */
+  (function () {
+    const sec = document.getElementById('s07c');
+    if (!sec) return;
+    const path = sec.querySelector('.gt-thread-path');
+    const highlight = sec.querySelector('.gt-thread-highlight');
+    const head = sec.querySelector('.gt-thread-head');
+    const checks = [...sec.querySelectorAll('.gt-item-check')];
+    if (!path) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const len = path.getTotalLength();
+    [path, highlight].forEach(p => {
+      if (!p) return;
+      p.style.setProperty('--gt-len', len);
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = reduced ? 0 : len;
+    });
+    if (reduced) {
+      if (head) head.classList.add('is-on');
+      checks.forEach(c => c.classList.add('gt-check-green'));
+      return;
+    }
+    /* Timing must match the 6s ease-in-out gtDraw animation.
+       Box mid-points along the path are spaced roughly evenly,
+       so map each box to its arrival time using cubic-bezier(.42,0,.58,1) easing. */
+    const DRAW_MS = 7000;
+    /* Linear progress fractions where each tick is reached (path proportion at each box mid).
+       Wave is phased so peaks sit in the GAPS (visible) and crossings sit at BOX MIDS (hidden);
+       so each box mid is hit at the boundary between adjacent wave segments. */
+    const linearStops = [0.14, 0.31, 0.50, 0.68, 0.87];
+    /* Convert to time using ease-in-out cubic-bezier curve approximation */
+    function easeInOutTime(p) {
+      // inverse approximation of cubic-bezier(.42,0,.58,1) — close enough for staggered timing
+      const t = p < 0.5
+        ? Math.sqrt(p / 2)
+        : 1 - Math.sqrt((1 - p) / 2);
+      return t * DRAW_MS;
+    }
+    const checkDelays = linearStops.map(easeInOutTime);
+    const gtIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          path.classList.add('is-drawn');
+          if (highlight) highlight.classList.add('is-drawn');
+          checks.forEach((c, i) => {
+            setTimeout(() => c.classList.add('gt-check-green'), checkDelays[i]);
+          });
+          if (head) setTimeout(() => head.classList.add('is-on'), DRAW_MS - 80);
+          gtIO.unobserve(sec);
+        }
+      });
+    }, { threshold: 0.2 });
+    gtIO.observe(sec);
+  })();
 </script>
 
 

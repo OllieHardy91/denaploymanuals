@@ -966,9 +966,31 @@
       .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid,.opp-grid { grid-template-columns:1fr; gap:2.5rem; }
       .gt-act-banner { flex-direction:column; gap:1rem; }
       .gt-checklist { margin-top:0; gap:2.2rem; }
-      .gt-thread-path { stroke-width:2.5; }
-      .gt-thread-highlight { stroke-width:1; }
-      .gt-thread-head { width:20px; height:20px; bottom:-0.6rem; }
+      /* Stop the line bleeding up into the BSA banner above (the description
+         column stacks on top in single-column layout) — only restrain the top,
+         leave the bottom extension intact so the head dot sits below the
+         last box as designed. */
+      .gt-thread-layer { top:0.25rem; bottom:-2.5rem; }
+      /* Use a solid deep amber stroke + non-scaling-stroke on mobile.
+         The desktop gradient's pale midpoints and the SVG's
+         preserveAspectRatio="none" scaling combine to render the line as
+         a faint hairline at narrow widths — bypass both with a fixed
+         pixel stroke and a single high-contrast colour. */
+      .gt-thread-path {
+        stroke:#A6700C !important;
+        stroke-width:5;
+        vector-effect:non-scaling-stroke;
+        filter:drop-shadow(0 0 3px rgba(184,128,28,0.65))
+               drop-shadow(0 1px 0 rgba(60,38,5,0.55));
+      }
+      /* The white highlight overlay washes out the gold at small widths —
+         hide it entirely on mobile. */
+      .gt-thread-highlight { display:none; }
+      .gt-thread-head {
+        width:22px; height:22px; bottom:-0.6rem;
+        border-width:2.2px; border-color:#A6700C;
+        box-shadow:0 0 14px rgba(224,168,46,0.6), 0 2px 6px rgba(120,75,8,0.4);
+      }
       .pay-grid { gap:1rem; }
       .opp-stats { grid-template-columns:1fr 1fr; }
       .nav-links { display:none; }
@@ -1956,6 +1978,10 @@
       const straight = 'M 50 0 L 50 985';
       path.setAttribute('d', straight);
       if (highlight) highlight.setAttribute('d', straight);
+      /* Set vector-effect as an SVG attribute too — CSS-only application is
+         flaky on some mobile browsers, the attribute form is reliable. */
+      path.setAttribute('vector-effect', 'non-scaling-stroke');
+      if (highlight) highlight.setAttribute('vector-effect', 'non-scaling-stroke');
     }
     const len = path.getTotalLength();
     [path, highlight].forEach(p => {

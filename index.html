@@ -971,23 +971,24 @@
          leave the bottom extension intact so the head dot sits below the
          last box as designed. */
       .gt-thread-layer { top:0.25rem; bottom:-2.5rem; }
-      /* Use non-scaling-stroke so stroke-width is in actual screen pixels —
-         preserveAspectRatio="none" otherwise squashes the stroke unpredictably
-         at narrow widths and reads as washed out. */
+      /* Use a solid deep amber stroke + non-scaling-stroke on mobile.
+         The desktop gradient's pale midpoints and the SVG's
+         preserveAspectRatio="none" scaling combine to render the line as
+         a faint hairline at narrow widths — bypass both with a fixed
+         pixel stroke and a single high-contrast colour. */
       .gt-thread-path {
-        stroke-width:4;
+        stroke:#A6700C !important;
+        stroke-width:5;
         vector-effect:non-scaling-stroke;
-        filter:drop-shadow(0 0 6px rgba(184,128,28,0.55))
-               drop-shadow(0 1px 1px rgba(90,55,5,0.6));
+        filter:drop-shadow(0 0 3px rgba(184,128,28,0.65))
+               drop-shadow(0 1px 0 rgba(60,38,5,0.55));
       }
-      .gt-thread-highlight {
-        stroke-width:1.5;
-        vector-effect:non-scaling-stroke;
-        opacity:0.4;
-      }
+      /* The white highlight overlay washes out the gold at small widths —
+         hide it entirely on mobile. */
+      .gt-thread-highlight { display:none; }
       .gt-thread-head {
         width:22px; height:22px; bottom:-0.6rem;
-        border-width:2.2px;
+        border-width:2.2px; border-color:#A6700C;
         box-shadow:0 0 14px rgba(224,168,46,0.6), 0 2px 6px rgba(120,75,8,0.4);
       }
       .pay-grid { gap:1rem; }
@@ -1977,17 +1978,10 @@
       const straight = 'M 50 0 L 50 985';
       path.setAttribute('d', straight);
       if (highlight) highlight.setAttribute('d', straight);
-      /* Boost gradient saturation on mobile — the desktop palette's cream
-         midpoint reads as washed out against white at narrow widths. Use a
-         darker, more contrasty amber/copper range for a vivid gold line. */
-      const grad = sec.querySelector('#gtThreadGrad');
-      if (grad) {
-        const stops = grad.querySelectorAll('stop');
-        const mobileStops = ['#C68A14', '#A0680C', '#D69A28', '#7A4E08', '#4A2F05'];
-        stops.forEach((s, i) => {
-          if (mobileStops[i]) s.setAttribute('stop-color', mobileStops[i]);
-        });
-      }
+      /* Set vector-effect as an SVG attribute too — CSS-only application is
+         flaky on some mobile browsers, the attribute form is reliable. */
+      path.setAttribute('vector-effect', 'non-scaling-stroke');
+      if (highlight) highlight.setAttribute('vector-effect', 'non-scaling-stroke');
     }
     const len = path.getTotalLength();
     [path, highlight].forEach(p => {

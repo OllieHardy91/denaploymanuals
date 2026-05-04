@@ -966,9 +966,21 @@
       .own-grid,.hot-grid,.ts-grid,.pay-grid,.gt-grid,.opp-grid { grid-template-columns:1fr; gap:2.5rem; }
       .gt-act-banner { flex-direction:column; gap:1rem; }
       .gt-checklist { margin-top:0; gap:2.2rem; }
-      .gt-thread-path { stroke-width:2.5; }
-      .gt-thread-highlight { stroke-width:1; }
-      .gt-thread-head { width:20px; height:20px; bottom:-0.6rem; }
+      /* Constrain the thread to the checklist column on mobile so it doesn't
+         bleed into the BSA banner above (the description column stacks on top
+         in single-column layout). */
+      .gt-thread-layer { top:0.25rem; bottom:-0.5rem; }
+      .gt-thread-path {
+        stroke-width:3.6;
+        filter:drop-shadow(0 0 5px rgba(214,158,46,0.55))
+               drop-shadow(0 1px 1.5px rgba(120,75,8,0.55));
+      }
+      .gt-thread-highlight { stroke-width:1.2; opacity:0.55; }
+      .gt-thread-head {
+        width:22px; height:22px; bottom:-0.5rem;
+        border-width:2.2px;
+        box-shadow:0 0 14px rgba(224,168,46,0.6), 0 2px 6px rgba(120,75,8,0.35);
+      }
       .pay-grid { gap:1rem; }
       .opp-stats { grid-template-columns:1fr 1fr; }
       .nav-links { display:none; }
@@ -1956,6 +1968,16 @@
       const straight = 'M 50 0 L 50 985';
       path.setAttribute('d', straight);
       if (highlight) highlight.setAttribute('d', straight);
+      /* Boost gradient saturation on mobile — the pale cream midpoint reads as
+         washed out at small widths, so darken it for a more vivid gold. */
+      const grad = sec.querySelector('#gtThreadGrad');
+      if (grad) {
+        const stops = grad.querySelectorAll('stop');
+        const mobileStops = ['#E8B844', '#C68A14', '#E8B23A', '#9C6A0E', '#6B4708'];
+        stops.forEach((s, i) => {
+          if (mobileStops[i]) s.setAttribute('stop-color', mobileStops[i]);
+        });
+      }
     }
     const len = path.getTotalLength();
     [path, highlight].forEach(p => {
